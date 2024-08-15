@@ -1,0 +1,317 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+enum Genre {
+  MALE
+  FEMALE
+}
+enum Role {
+  TAILOR
+  USER
+  VENDOR
+}
+enum SIZE {
+  XS
+  S
+  M
+  L
+  XL
+}
+enum STATUS {
+  PENDING
+  USED
+}
+
+
+model User {
+  id    Int @id @default(autoincrement())
+  firstname  String
+  lastname  String
+  email String @unique
+  password String
+  phone String
+  photo String
+  genre Genre @default(MALE)
+  role Role @default(USER)
+  // favoris Post[] 
+  likes Like[]
+  dislikes Dislike[]
+  comments Comment[]
+  share Share[]
+  reposts Repost[]
+  follow Follow[]
+  actor Actor?
+  ventes Vente[]
+  commandes Commande[]
+  chats Chat[]
+  favoris Favori[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+ 
+  
+}
+
+model Favori {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idPost Int
+  user  User @relation(fields: [idUser], references: [id])
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("favoris")
+}
+model Actor {
+  id    Int @id @default(autoincrement())
+  idUser Int  @unique
+  user  User @relation(fields: [idUser], references: [id])
+  address String
+  bio String
+  produits Produit[]
+  credits Int @default(50)
+  vote Int @default(0)
+  role Role @default(TAILOR)
+  reports Report[] 
+  follow Follow[]
+  ventes Vente[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts Post[]
+  story Story[]
+  @@map("actors")
+  Chat Chat[]
+}
+
+
+model Post {
+  id    Int @id @default(autoincrement())
+  title  String
+  description  String
+  category String
+  size SIZE @default(M)
+  content Json
+  idActor Int
+  user  Actor @relation(fields: [idActor], references: [id])
+  likes Like[]
+  dislikes Dislike[]
+  comments Comment[]
+  tags Tag[]
+  share Share[]
+  reposts Repost[]
+  vues Int @default(0)
+  reports Report[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  favoris Favori[]
+  @@map("posts")
+}
+
+model Like {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idPost Int
+  author  User @relation(fields: [idUser], references: [id])
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("likes")
+}
+model Dislike {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idPost Int
+  author  User @relation(fields: [idUser], references: [id])
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("dislikes")
+}
+
+model Comment {
+  id    Int @id @default(autoincrement())
+  content  String
+  idUser Int
+  idPost Int?
+  author  User @relation(fields: [idUser], references: [id])
+  post  Post? @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  idStory Int?
+  story  Story? @relation(fields: [idStory], references: [id])
+  @@map("comments")
+}
+model Tag {
+  id    Int @id @default(autoincrement())
+  name  String
+  idPost Int
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("tags")
+}
+model Share {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idPost Int
+  user  User @relation(fields: [idUser], references: [id])
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("shares")
+}
+model Repost {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idPost Int
+  user  User @relation(fields: [idUser], references: [id])
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("reposts")
+}
+
+
+
+model Report {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idPost Int
+  actor  Actor @relation(fields: [idUser], references: [id])
+  post  Post @relation(fields: [idPost], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("reports")
+}
+
+model Produit {
+  id    Int @id @default(autoincrement())
+  libelle String
+  description String
+  image String
+  price Float
+  qte Int
+  idUser Int
+  vendor  Actor @relation(fields: [idUser], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ commandes CommandeProduit[] 
+  ventes Vente[]
+
+  @@map("produits")
+}
+
+model Follow {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idActor Int
+  user  User @relation(fields: [idUser], references: [id])
+  actor  Actor @relation(fields: [idActor], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("follows")
+  @@unique([idActor, idUser])
+}
+
+model Vente {
+  id    Int @id @default(autoincrement())
+  idActor Int
+  idProduit Int
+  idUser Int
+  user  User @relation(fields: [idUser], references: [id])
+  price Float 
+  quantity Int
+  actor  Actor @relation(fields: [idActor], references: [id])
+  produit  Produit @relation(fields: [idProduit], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("ventes")
+}
+
+model Commande {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idProduit Int
+  montant Float
+  user  User @relation(fields: [idUser], references: [id])
+  produits  CommandeProduit[] 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("commandes")
+ 
+}
+
+model CommandeProduit {
+  id           Int      @id @default(autoincrement())
+  idCommande   Int
+  idProduit    Int
+  qte          Int
+  price        Float
+  commande     Commande @relation(fields: [idCommande], references: [id])
+  produit      Produit  @relation(fields: [idProduit], references: [id])
+  
+  @@unique([idProduit, idCommande])
+  @@map("commande_produits")
+}
+
+model Story {
+  id    Int @id @default(autoincrement())
+  idActory Int
+  photo String
+  description String
+  title String
+  vues Int @default(0)
+ comments Comment[]
+  actor Actor @relation(fields: [idActory], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("stories")
+}
+
+model GenerateCode {
+  id    Int @id @default(autoincrement())
+  code String
+  price Float
+  credit Int
+  status STATUS @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("codes")
+}
+
+model Chat {
+  id    Int @id @default(autoincrement())
+  idUser Int
+  idActor Int
+  message String
+  content Json
+  user  User @relation(fields: [idUser], references: [id])
+  actor  Actor @relation(fields: [idActor], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("chats")
+}
+
+
+
+
+
+
+
+
+
