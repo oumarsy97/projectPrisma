@@ -3,7 +3,10 @@ import UserRoute from './route/UserRoute.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const app = express();
+<<<<<<< HEAD
 app.use(express.json());
+=======
+>>>>>>> origin/oumar
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
