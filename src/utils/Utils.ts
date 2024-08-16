@@ -3,11 +3,7 @@ import jwt from 'jsonwebtoken';
 
 export default class Utils {
     static generateToken(id: number) {
-<<<<<<< HEAD
-        return jwt.sign({id}, process.env.JWT_SECRET as string, {
-=======
         return jwt.sign({id}, process.env.SECRET_KEY as string, {
->>>>>>> origin/oumar
             expiresIn: "1d",
         });
     }  

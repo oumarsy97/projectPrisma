@@ -3,24 +3,18 @@ import Utils from '../utils/Utils.js';
 
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
-<<<<<<< HEAD
-=======
 import Validation from '../Validation/Validation.js';
->>>>>>> origin/oumar
 
 
 export default class UserController {
     
     static createUser = async (req: Request, res: Response) => {
         const password = Utils.hashPassword(req.body.password);
-<<<<<<< HEAD
-=======
         const validationResult = Validation.validateUser.safeParse(req.body);
         if(!validationResult.success) {
             return res.status(400).json({message: validationResult.error.message, status: 400});
         }
         try {
->>>>>>> origin/oumar
         const user = await prisma.user.create({
             data: {
                 firstname: req.body.firstname,
@@ -36,11 +30,6 @@ export default class UserController {
             data: user,
          status: 200
         });  
-<<<<<<< HEAD
-      };
-
-    static updateUser = async (req: Request, res: Response) => {
-=======
       }
       catch (error: any) {
         res.status(500).json({
@@ -56,7 +45,6 @@ export default class UserController {
             return res.status(400).json({message: validationResult.error.message, status: 400});
         }
         try {
->>>>>>> origin/oumar
         const user = await prisma.user.update({
             where: {
                 id: Number(req.params.id)
@@ -68,9 +56,6 @@ export default class UserController {
             status: 200
         });
     }
-<<<<<<< HEAD
-
-=======
     catch (error: any) {
         res.status(500).json({
             message: "Internal server error",
@@ -79,7 +64,6 @@ export default class UserController {
     }
 }
  
->>>>>>> origin/oumar
     static login = async (req: Request, res: Response) => {
         const user = await prisma.user.findUnique({
             where: {
