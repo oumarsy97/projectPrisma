@@ -51,7 +51,7 @@ model User {
  
   reposts Repost[]
   follow Follow[]
-  actor Actor?
+  actor Actor[]
   ventes Vente[]
   commandes Commande[]
   chats Chat[]

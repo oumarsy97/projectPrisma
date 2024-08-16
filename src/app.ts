@@ -2,7 +2,6 @@ import express from 'express';
 import UserRoute from './route/UserRoute.js';
 import PostRoute from './route/PostRoute.js';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
 dotenv.config();
 
 
