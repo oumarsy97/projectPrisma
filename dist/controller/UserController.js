@@ -11,37 +11,62 @@ var _a;
 import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
+import Validation from '../Validation/Validation.js';
 class UserController {
 }
 _a = UserController;
 UserController.createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const password = Utils.hashPassword(req.body.password);
-    const user = yield prisma.user.create({
-        data: {
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            phone: req.body.phone,
-            photo: req.body.photo,
-            email: req.body.email,
-            password: password
-        }
-    });
-    res.json({ message: "User created successfully",
-        data: user,
-        status: 200
-    });
+    const validationResult = Validation.validateUser.safeParse(req.body);
+    if (!validationResult.success) {
+        return res.status(400).json({ message: validationResult.error.message, status: 400 });
+    }
+    try {
+        const user = yield prisma.user.create({
+            data: {
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                phone: req.body.phone,
+                photo: req.body.photo,
+                email: req.body.email,
+                password: password
+            }
+        });
+        res.json({ message: "User created successfully",
+            data: user,
+            status: 200
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
 });
 UserController.updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield prisma.user.update({
-        where: {
-            id: Number(req.params.id)
-        },
-        data: req.body
-    });
-    res.json({ message: "User updated successfully",
-        data: user,
-        status: 200
-    });
+    const validationResult = Validation.validateUser.safeParse(req.body);
+    if (!validationResult.success) {
+        return res.status(400).json({ message: validationResult.error.message, status: 400 });
+    }
+    try {
+        const user = yield prisma.user.update({
+            where: {
+                id: Number(req.params.id)
+            },
+            data: req.body
+        });
+        res.json({ message: "User updated successfully",
+            data: user,
+            status: 200
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
 });
 UserController.login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield prisma.user.findUnique({

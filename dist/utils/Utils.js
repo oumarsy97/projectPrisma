@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 export default class Utils {
     static generateToken(id) {
-        return jwt.sign({ id }, process.env.JWT_SECRET, {
+        return jwt.sign({ id }, process.env.SECRET_KEY, {
             expiresIn: "1d",
         });
     }
