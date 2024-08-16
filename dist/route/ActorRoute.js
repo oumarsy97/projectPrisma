@@ -5,5 +5,5 @@ router.post("/create", ActorController.createActor);
 router.get("/getactors", ActorController.getActors);
 router.get("/getactor/:id", ActorController.getActorById);
 router.get("/deleteactor/:id", ActorController.deleteActor);
-router.post("/update", ActorController.updateActor);
+router.put("/update/:id", ActorController.updateActor);
 export default router;

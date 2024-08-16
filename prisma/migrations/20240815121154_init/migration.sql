@@ -334,5 +334,9 @@ ALTER TABLE `chats` ADD CONSTRAINT `chats_idUser_fkey` FOREIGN KEY (`idUser`) RE
 ALTER TABLE `chats` ADD CONSTRAINT `chats_idActor_fkey` FOREIGN KEY (`idActor`) REFERENCES `actors`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 DELETE FROM _prisma_migrations WHERE migration_name = '20240815121154_init';
+
+DROP DATABASE IF EXISTS prisma_migrate_shadow_db_b7ec6bbb-3bde-464c-b25a-9604d83d5ff1;
+
+
  
 
