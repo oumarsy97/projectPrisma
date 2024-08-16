@@ -65,6 +65,11 @@ export default class UserController {
 }
  
     static login = async (req: Request, res: Response) => {
+        const validationResult = Validation.validateLogin.safeParse(req.body);
+        if(!validationResult.success) {
+            return res.status(400).json({message: validationResult.error.message, status: 400});
+        }
+        try {
         const user = await prisma.user.findUnique({
             where: {
                 email: req.body.email
@@ -83,17 +88,33 @@ export default class UserController {
             });
         }
     }
+    catch (error: any) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+          });
+    }
+}
 
     static getUser = async (req: Request, res: Response) => {
+        const idUser = req.params.userId;
+        try{
         const user = await prisma.user.findUnique({
             where: {
-                id: Number(req.params.id)
+                id: Number(idUser)
             }
         });
         res.json({message: "User fetched successfully",
             data: user,
             status: 200
         });
+    }
+    catch (error: any) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+          });
+    }
     }
 
 }
