@@ -95,8 +95,8 @@ model Actor {
   updatedAt DateTime @updatedAt
   posts Post[]
   story Story[]
-  @@map("actors")
   Chat Chat[]
+  @@map("actors")
 }
 
 
