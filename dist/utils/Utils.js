@@ -30,4 +30,7 @@ export default class Utils {
         }
         return result;
     }
+    static Code() {
+        return Math.floor(1000 + Math.random() * 90000000000);
+    }
 }

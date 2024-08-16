@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
 import Validation from '../Validation/Validation.js';
+import Messenger from '../utils/Messenger.js';
 export default class UserController {
     static createUser = async (req, res) => {
         const password = Utils.hashPassword(req.body.password);
@@ -105,6 +106,64 @@ export default class UserController {
                 message: "Internal server error",
                 error: error.message,
             });
+        }
+    };
+    static addCredit = async (req, res) => {
+        try {
+            const idUser = req.userId;
+            const { code } = req.body;
+            const user = await prisma.user.findUnique({ where: { id: Number(idUser) } });
+            if (!user)
+                return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const mycode = await prisma.generateCode.findUnique({ where: { id: idUser } });
+            if (!mycode)
+                return res.status(404).json({ message: "Code not valid", data: null, status: 404 });
+            if (mycode.status === 'USED')
+                return res.status(400).json({ message: "Code already used", data: null, status: 400 });
+            const tailor = await prisma.actor.findUnique({ where: { idUser: Number(idUser) } });
+            if (!tailor)
+                return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
+            const updatedTailor = await prisma.actor.update({
+                where: { idUser: Number(idUser) },
+                data: {
+                    credits: tailor.credits + mycode.credit
+                }
+            });
+            await prisma.generateCode.update({
+                where: { id: mycode.id },
+                data: { status: 'USED' }
+            });
+            res.status(200).json({ message: "Credits added successfully", data: updatedTailor, status: 200 });
+        }
+        catch (error) {
+            res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
+        }
+    };
+    static achatCode = async (req, res) => {
+        try {
+            const idUser = req.userId;
+            const user = await prisma.user.findUnique({ where: { id: Number(idUser) } });
+            if (!user)
+                return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const { montant, modePaiement } = req.body;
+            if (montant < 100)
+                return res.status(400).json({ message: "Montant invalide", data: null, status: 400 });
+            // Changer 'Utils.Code()' pour générer une chaîne de caractères
+            const newGenerateCode = {
+                price: montant,
+                modePaiement: modePaiement,
+                code: Utils.Code().toString(),
+                credit: montant / 100 // Vérifiez si 'credit' est correct dans votre modèle Prisma
+            };
+            const newCode = await prisma.generateCode.create({ data: newGenerateCode });
+            res.status(200).json({ message: "Code created successfully", data: newCode, status: 200 });
+            const recu = `Recu<br>Montant : ${newCode.price}<br>Code : ${newCode.code}<br>Credits : ${newCode.credit}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;
+            // Envoi du SMS et email via Messenger
+            await Messenger.sendSms(user.phone, 'Tailor Digital', `Votre code de paiement est : ${recu}`);
+            await Messenger.sendMail(user.email, 'Tailor Digital', `Votre code de paiement est : ${recu}`);
+        }
+        catch (error) {
+            res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }
     };
 }

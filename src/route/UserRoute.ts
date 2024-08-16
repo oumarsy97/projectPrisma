@@ -6,12 +6,6 @@ const router = Router();
 router.post("/", UserController.createUser);
 router.post("/login", UserController.login);
 router.get("/monprofile",Middleware.auth, UserController.getUser);
-export default router
-import  UserController  from "../controller/UserController.js";
-import { Router } from "express";
-
-const router = Router();
-router.post("/", UserController.createUser);
-router.post("/ajoutercredits", UserController.ajouterCredit);
+router.post("/ajoutercredits", UserController.addCredit);
 router.post("/achatcode", UserController.achatCode);
 export default router
