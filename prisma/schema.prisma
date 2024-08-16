@@ -290,26 +290,14 @@ model Story {
 }
 
 model GenerateCode {
-  id           Int          @id @default(autoincrement())
-  code         String?
-  montant      Float
-  credits      Int
-  createdAt    DateTime     @default(now()) @map("created_at")
-  expiresAt    DateTime?    @default(dbgenerated("(NOW() + INTERVAL '7 DAYS')"))
-  modePaiement ModePaiement @default(WAVE)
-  status       Status       @default(PENDING)
-
+  id    Int @id @default(autoincrement())
+  code String
+  price Float
+  credit Int
+  status STATUS @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("codes")
-}
-
-enum ModePaiement {
-  WAVE
-  OM
-}
-
-enum Status {
-  PENDING
-  USED
 }
 
 model Chat {

@@ -126,7 +126,7 @@ export default class UserController {
             const updatedTailor = await prisma.actor.update({
                 where: { idUser: Number(idUser) },
                 data: {
-                    credits: tailor.credits + mycode.credit
+                    credits: tailor.credits + mycode.credits
                 }
             });
             await prisma.generateCode.update({
@@ -148,16 +148,15 @@ export default class UserController {
             const { montant, modePaiement } = req.body;
             if (montant < 100)
                 return res.status(400).json({ message: "Montant invalide", data: null, status: 400 });
-            // Changer 'Utils.Code()' pour générer une chaîne de caractères
             const newGenerateCode = {
-                price: montant,
+                montant: montant,
                 modePaiement: modePaiement,
                 code: Utils.Code().toString(),
-                credit: montant / 100 // Vérifiez si 'credit' est correct dans votre modèle Prisma
+                credits: montant / 100
             };
             const newCode = await prisma.generateCode.create({ data: newGenerateCode });
             res.status(200).json({ message: "Code created successfully", data: newCode, status: 200 });
-            const recu = `Recu<br>Montant : ${newCode.price}<br>Code : ${newCode.code}<br>Credits : ${newCode.credit}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;
+            const recu = `Recu<br>Montant : ${newCode.montant}<br>Code : ${newCode.code}<br>Credits : ${newCode.credits}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;
             // Envoi du SMS et email via Messenger
             await Messenger.sendSms(user.phone, 'Tailor Digital', `Votre code de paiement est : ${recu}`);
             await Messenger.sendMail(user.email, 'Tailor Digital', `Votre code de paiement est : ${recu}`);
