@@ -51,7 +51,7 @@ model User {
  
   reposts Repost[]
   follow Follow[]
-  actor Actor?
+  actor Actor[]
   ventes Vente[]
   commandes Commande[]
   chats Chat[]
@@ -95,8 +95,8 @@ model Actor {
   updatedAt DateTime @updatedAt
   posts Post[]
   story Story[]
-  @@map("actors")
   Chat Chat[]
+  @@map("actors")
 }
 
 
