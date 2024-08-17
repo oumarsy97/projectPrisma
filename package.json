@@ -8,7 +8,6 @@
     "start": "npx nodemon ./dist/app.js",
     "build": "tsc",
     "migrate": "npx prisma migrate dev --name init",
-     "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
