@@ -40,6 +40,42 @@ export default class UserController {
       }
     }
 
+    static getAllUsers = async (req: Request, res: Response) => {
+        try {
+        const users = await prisma.user.findMany();
+        res.json({message: "Users retrieved successfully",
+            data: users,
+            status: 200
+        });
+    }
+    catch (error: any) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+          });
+    }
+}
+
+    static getUserById = async (req: Request, res: Response) => {
+        try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: Number(req.params.id)
+            }
+        });
+        res.json({message: "User retrieved successfully",
+            data: user,
+            status: 200
+        });
+    }
+    catch (error: any) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+          });
+    }
+}
+
     static updateUser = async (req: Request, res: Response) => {
         const validationResult = Validation.validateUser.safeParse(req.body);
         if(!validationResult.success) {

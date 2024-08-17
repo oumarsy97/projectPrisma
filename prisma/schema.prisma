@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 enum Genre {
@@ -20,6 +20,11 @@ enum Role {
   TAILOR
   USER
   VENDOR
+}
+
+enum STATUT {
+  PENDING
+  VALIDATED
 }
 enum SIZE {
   XS
@@ -252,14 +257,14 @@ model Vente {
 model Commande {
   id    Int @id @default(autoincrement())
   idUser Int
-  idProduit Int
   montant Float
+  statut STATUT @default(PENDING)
   user  User @relation(fields: [idUser], references: [id])
   produits  CommandeProduit[] 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@map("commandes")
- 
 }
 
 model CommandeProduit {

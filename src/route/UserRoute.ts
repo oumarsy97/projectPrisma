@@ -4,6 +4,8 @@ import Middleware from "../Middleware/Middelware.js";
 
 const router = Router();
 router.post("/", UserController.createUser);
+router.get("/", UserController.getAllUsers);
+router.get("/:id", UserController.getUserById);
 router.post("/login", UserController.login);
 router.get("/monprofile",Middleware.auth, UserController.getUser);
 

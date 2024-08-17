@@ -648,6 +648,7 @@ static updatetag = async (req:Request,res:Response) => {
                 id: Number(postId)
             }
         }); 
+
         if (post === null) {
             return res.status(400).json({ message: "Post not found" });
         }
