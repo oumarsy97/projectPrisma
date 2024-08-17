@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
-
-const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import { number } from 'zod';
+
+const prisma = new PrismaClient();
 
 export default class RepostController{
 

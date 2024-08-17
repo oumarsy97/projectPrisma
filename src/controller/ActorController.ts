@@ -1,14 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
+import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
-import { Request, Response } from "express";
 
 export default class ActorController{
 
     //create a new actor
     static createActor = async (req: Request, res: Response) => {
         const {role} = req.body
+        console.log(req.body);
         if (role !=="TAILOR" && role !=="VENDOR") {
             return res.status(400).json({
                 message: "Invalid role provided. Please choose either 'TAILOR' or 'VENDOR'.",

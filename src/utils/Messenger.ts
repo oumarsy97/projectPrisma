@@ -15,7 +15,7 @@ export default class Messenger {
 
     static async sendMail(destination: string, name: string, message: string): Promise<{ message: string; status: number }> {
         try {
-            const info = await this.transporter.sendMail({
+            await this.transporter.sendMail({
                 from: '"Cargo Express" <syoumar505@gmail.com>',
                 to: destination,
                 subject: 'Tailor Digital',
@@ -30,15 +30,16 @@ export default class Messenger {
     }
 
     static async sendSms(destination: string, name: string, message: string): Promise<void> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa");
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Accept", "application/json");
+        const myHeaders: { [key: string]: string } = {
+            "Authorization": "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        };
 
         const raw = JSON.stringify({
             "messages": [
                 {
-                    "destinations": [{"to":"221781807229"}],
+                    "destinations": [{"to": destination}],
                     "from": "Tailor Digital",
                     "text": message
                 }
@@ -59,22 +60,23 @@ export default class Messenger {
     }
 
     static async sendWhatsapp(destination: string, name: string, message: string): Promise<void> {
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa");
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Accept", "application/json");
+        const myHeaders: { [key: string]: string } = {
+            "Authorization": "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        };
 
         const raw = JSON.stringify({
             "messages": [
                 {
                     "from": "447860099299",
-                    "to": "221781807229",
+                    "to": destination,
                     "messageId": "907a6087-9a98-4f41-a1a8-6e8bd6560910",
                     "content": {
                         "templateName": "message_test",
                         "templateData": {
                             "body": {
-                                "placeholders": ["Oumar"]
+                                "placeholders": [name]
                             }
                         },
                         "language": "fr"

@@ -1,10 +1,10 @@
 import express from 'express';
 import UserRoute from './route/UserRoute.js';
 import PostRoute from './route/PostRoute.js';
+import ActorRoute from './route/ActorRoute.js';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 dotenv.config();
-
 
 const app = express();
 app.use(express.json());
@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
 });
 app.use(`${process.env.BASE_URL}/users`, UserRoute);
 app.use(`${process.env.BASE_URL}/posts`, PostRoute);
+app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 
 
 

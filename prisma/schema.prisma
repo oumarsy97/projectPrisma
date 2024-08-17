@@ -95,8 +95,8 @@ model Actor {
   updatedAt DateTime @updatedAt
   posts Post[]
   story Story[]
-  Chat Chat[]
   @@map("actors")
+  Chat Chat[]
 }
 
 
@@ -291,7 +291,7 @@ model Story {
 
 model GenerateCode {
   id    Int @id @default(autoincrement())
-  code String
+  code String @unique
   price Float
   credit Int
   status STATUS @default(PENDING)
@@ -312,4 +312,3 @@ model Chat {
   updatedAt DateTime @updatedAt
   @@map("chats")
 }
-

@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
 export default class Middleware {
 
     static auth = (req: Request, res: Response, next: NextFunction) => {
@@ -52,7 +53,7 @@ export default class Middleware {
             where: {
                 id: Number(idUser)
             }
-        }).then((user:any) => {
+        }).then((user) => {
             if (user?.role === "VENDOR") {
                 next();
             }
