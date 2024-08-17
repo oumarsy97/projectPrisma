@@ -32,6 +32,10 @@ enum STATUS {
   PENDING
   USED
 }
+enum STATUT {
+  PENDING
+  VALIDATED
+}
 
 
 model User {
@@ -216,7 +220,7 @@ model Produit {
   vendor  Actor @relation(fields: [idUser], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- commandes CommandeProduit[] 
+  commandes CommandeProduit[] 
   ventes Vente[]
 
   @@map("produits")
@@ -252,14 +256,14 @@ model Vente {
 model Commande {
   id    Int @id @default(autoincrement())
   idUser Int
-  idProduit Int
   montant Float
+  statut STATUT @default(PENDING)
   user  User @relation(fields: [idUser], references: [id])
   produits  CommandeProduit[] 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@map("commandes")
- 
 }
 
 model CommandeProduit {
