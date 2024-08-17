@@ -25,4 +25,7 @@ router.delete("/comment/:id", Middleware.auth, PostController.deleteComment);
 router.post("/tag/:postId", Middleware.auth, Middleware.isActor, PostController.createtag);
 router.get("/tag", Middleware.auth, Middleware.isActor, PostController.gettag);
 router.get("/tagbypost/:postId", Middleware.auth, PostController.gettag);
+//favoris
+router.post("/favoris/:postId", Middleware.auth, PostController.addfavoris);
+router.get("/myfavoris", Middleware.auth, PostController.getfavoris);
 export default router;
