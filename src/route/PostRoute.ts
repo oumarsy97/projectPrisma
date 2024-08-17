@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Middleware from "../Middleware/Middelware.js";
+import Middleware from "../Middleware/Middleware.js";
 import PostController from "../controller/PostController.js";
 const router = Router();
 

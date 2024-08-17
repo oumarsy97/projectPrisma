@@ -1,24 +1,20 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
 export default class Middleware {
-
-    static auth = (req: Request, res: Response, next: NextFunction) => {
+    static auth = (req, res, next) => {
         const entete = req.headers.authorization;
         let token;
-       if(entete){
+        if (entete) {
             token = entete.split(" ")[1];
-       }else{
-           res.status(401).json({ message: "token not found" });
-       } 
-
+        }
+        else {
+            res.status(401).json({ message: "token not found" });
+        }
         if (token) {
-            const decoded = jwt.verify(token, process.env.SECRET_KEY as string);
+            const decoded = jwt.verify(token, process.env.SECRET_KEY);
             if (decoded) {
-                req.params.userId = (decoded as any).id;
+                req.params.userId = decoded.id;
                 next();
             }
             else {
@@ -28,11 +24,10 @@ export default class Middleware {
         else {
             res.status(401).json({ message: "token not found" });
         }
-    }
-
-    static isTailor = async (req: Request, res: Response, next: NextFunction) => {
+    };
+    static isTailor = async (req, res, next) => {
         const idUser = req.params.userId;
-        const user =await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: {
                 id: Number(idUser)
             }
@@ -43,16 +38,14 @@ export default class Middleware {
         else {
             res.status(401).json({ message: "you are not a tailor" });
         }
-       
-    }
-
-    static isVendor = (req: Request, res: Response, next: NextFunction) => {
+    };
+    static isVendor = (req, res, next) => {
         const idUser = req.params.userId;
         prisma.user.findUnique({
             where: {
                 id: Number(idUser)
             }
-        }).then((user:any) => {
+        }).then((user) => {
             if (user?.role === "VENDOR") {
                 next();
             }
@@ -60,9 +53,8 @@ export default class Middleware {
                 res.status(401).json({ message: "you are not a vendor" });
             }
         });
-    }
-
-    static isActor = (req: Request, res: Response, next: NextFunction) => {
+    };
+    static isActor = (req, res, next) => {
         const idUser = req.params.userId;
         prisma.user.findUnique({
             where: {
@@ -76,5 +68,5 @@ export default class Middleware {
                 res.status(401).json({ message: "you are not a Actor" });
             }
         });
-    }
+    };
 }
