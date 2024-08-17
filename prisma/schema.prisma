@@ -48,7 +48,7 @@ model User {
   likes Like[]
   dislikes Dislike[]
   comments Comment[]
-  share Share[]
+ 
   reposts Repost[]
   follow Follow[]
   actor Actor?
@@ -56,6 +56,7 @@ model User {
   commandes Commande[]
   chats Chat[]
   favoris Favori[]
+   
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -63,6 +64,9 @@ model User {
   @@map("users")
  
   
+  Share Share[] @relation("SharesFromUser")
+  received Share[] @relation("SharesToUser")
+  report Report[]
 }
 
 model Favori {
@@ -85,15 +89,14 @@ model Actor {
   credits Int @default(50)
   vote Int @default(0)
   role Role @default(TAILOR)
-  reports Report[] 
   follow Follow[]
   ventes Vente[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts Post[]
   story Story[]
-  @@map("actors")
   Chat Chat[]
+  @@map("actors")
 }
 
 
@@ -164,13 +167,16 @@ model Tag {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("tags")
+@@unique([name, idPost])
 }
 model Share {
   id    Int @id @default(autoincrement())
-  idUser Int
+  fromUserId Int
+  toUserId  Int
   idPost Int
-  user  User @relation(fields: [idUser], references: [id])
   post  Post @relation(fields: [idPost], references: [id])
+  fromUser  User   @relation("SharesFromUser", fields: [fromUserId], references: [id])
+  toUser    User   @relation("SharesToUser", fields: [toUserId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("shares")
@@ -192,7 +198,7 @@ model Report {
   id    Int @id @default(autoincrement())
   idUser Int
   idPost Int
-  actor  Actor @relation(fields: [idUser], references: [id])
+  user  User @relation(fields: [idUser], references: [id])
   post  Post @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -272,11 +278,11 @@ model CommandeProduit {
 model Story {
   id    Int @id @default(autoincrement())
   idActory Int
-  photo String
+  photo String? // Make this field nullable
   description String
   title String
   vues Int @default(0)
- comments Comment[]
+  comments Comment[]
   actor Actor @relation(fields: [idActory], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

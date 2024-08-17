@@ -1,29 +1,31 @@
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 const prisma = new PrismaClient();
-// Schéma Zod pour la validation
 const storySchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    photo: z.string(),
+    title: z.string().nonempty({ message: "Title is required" }),
+    description: z.string().nonempty({ message: "Description is required" }),
 });
 export default class StoryController {
     static create = async (req, res) => {
-        const { title, description, photo } = req.body;
-        const idActory = req.userId;
-        const validation = storySchema.safeParse({ title, description, photo });
+        const { title, description } = req.body;
+        const photo = req.file?.path || "";
+        if (!req.userId) {
+            return res.status(401).json({ message: "Unauthorized: User ID is missing", data: null, status: false });
+        }
+        const idActory = Number(req.userId);
+        if (isNaN(idActory)) {
+            return res.status(400).json({ message: "Invalid User ID format", data: null, status: false });
+        }
+        const validation = storySchema.safeParse({ title, description });
         if (!validation.success) {
             return res.status(400).json({ message: validation.error.errors[0].message, data: null, status: false });
-        }
-        if (idActory === undefined) {
-            return res.status(401).json({ message: "Unauthorized: User ID is missing", data: null, status: false });
         }
         try {
             const newStory = await prisma.story.create({
                 data: {
                     title,
                     description,
-                    photo,
+                    photo, // This field is always a string
                     idActory,
                 },
             });

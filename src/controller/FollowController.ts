@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 // Schéma Zod pour la validation
 const followSchema = z.object({
-    idActor: z.number().int(),
+    idActor: z.number().int().positive(),
 });
 
 // Types pour les données

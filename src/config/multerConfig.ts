@@ -1,21 +1,21 @@
-import multer, { FileFilterCallback, Multer } from 'multer';
+// multerConfig.ts
+import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import cloudinary from '../config/cloudinaryConfig';
+import cloudinary from '../config/cloudinaryConfig.js';
 
-// Configure Cloudinary Storage for Multer
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
-    // Use 'auto' to accept images and videos
-    return {
-      folder: 'social_network',
-      resource_type: 'auto',
-    };
-  },
+  params: async (req, file) => ({
+    folder: 'social_network',
+    resource_type: 'auto',
+  }),
 });
 
-// Define the file filter function
-const fileFilter: (req: Express.Request, file: Express.Multer.File, cb: FileFilterCallback) => void = (req, file, cb) => {
+const fileFilter = (
+  req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
   const allowedMimeTypes = /jpeg|jpg|png|mp4|avi|mkv/;
   const mimeType = allowedMimeTypes.test(file.mimetype);
   const extname = allowedMimeTypes.test(file.originalname.split('.').pop()?.toLowerCase() || '');
@@ -27,10 +27,9 @@ const fileFilter: (req: Express.Request, file: Express.Multer.File, cb: FileFilt
   }
 };
 
-// Configure Multer
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-}).array('files', 5); // Assurez-vous que 'files' correspond au nom du champ
+}).single('photo');
 
 export default upload;

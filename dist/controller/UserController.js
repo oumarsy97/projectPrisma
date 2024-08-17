@@ -57,33 +57,54 @@ export default class UserController {
         }
     };
     static login = async (req, res) => {
-        const user = await prisma.user.findUnique({
-            where: {
-                email: req.body.email
-            }
-        });
-        if (user && Utils.comparePassword(req.body.password, user.password)) {
-            const token = Utils.generateToken(user.id);
-            res.json({ message: "User logged in successfully",
-                token: token,
-                status: 200
-            });
+        const validationResult = Validation.validateLogin.safeParse(req.body);
+        if (!validationResult.success) {
+            return res.status(400).json({ message: validationResult.error.message, status: 400 });
         }
-        else {
-            res.json({ message: "Email or password is incorrect",
-                status: 401
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: req.body.email
+                }
+            });
+            if (user && Utils.comparePassword(req.body.password, user.password)) {
+                const token = Utils.generateToken(user.id);
+                res.json({ message: "User logged in successfully",
+                    token: token,
+                    status: 200
+                });
+            }
+            else {
+                res.json({ message: "Email or password is incorrect",
+                    status: 401
+                });
+            }
+        }
+        catch (error) {
+            res.status(500).json({
+                message: "Internal server error",
+                error: error.message,
             });
         }
     };
     static getUser = async (req, res) => {
-        const user = await prisma.user.findUnique({
-            where: {
-                id: Number(req.params.id)
-            }
-        });
-        res.json({ message: "User fetched successfully",
-            data: user,
-            status: 200
-        });
+        const idUser = req.params.userId;
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: Number(idUser)
+                }
+            });
+            res.json({ message: "User fetched successfully",
+                data: user,
+                status: 200
+            });
+        }
+        catch (error) {
+            res.status(500).json({
+                message: "Internal server error",
+                error: error.message,
+            });
+        }
     };
 }
