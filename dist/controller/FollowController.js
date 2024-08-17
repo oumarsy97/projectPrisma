@@ -4,7 +4,7 @@ import { z } from 'zod';
 const prisma = new PrismaClient();
 // Schéma Zod pour la validation
 const followSchema = z.object({
-    idActor: z.number().int(),
+    idActor: z.number().int().positive(),
 });
 class FollowController {
     // Suivre un utilisateur
@@ -63,6 +63,18 @@ class FollowController {
         try {
             if (!idUser) {
                 return res.status(401).json({ error: "Non autorisé" });
+            }
+            // Vérifier si le suivi existe avant de le supprimer
+            const existingFollow = await prisma.follow.findUnique({
+                where: {
+                    idActor_idUser: {
+                        idUser: idUser,
+                        idActor: idActor,
+                    },
+                },
+            });
+            if (!existingFollow) {
+                return res.status(404).json({ error: "Relation de suivi non trouvée" });
             }
             const follow = await prisma.follow.delete({
                 where: {
