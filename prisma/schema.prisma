@@ -283,11 +283,11 @@ model CommandeProduit {
 model Story {
   id    Int @id @default(autoincrement())
   idActory Int
-  photo String
+  photo String? // Make this field nullable
   description String
   title String
   vues Int @default(0)
- comments Comment[]
+  comments Comment[]
   actor Actor @relation(fields: [idActory], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

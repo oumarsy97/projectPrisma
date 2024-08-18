@@ -1,0 +1,345 @@
+openapi: 3.0.0
+info:
+  title: API de Gestion des Story et Follow
+  description: Documentation de l'API pour gérer les Story et les Follow des utilisateurs.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Serveur de développement local
+tags:
+  - name: Follow
+    description: Gestion des relations de suivi entre utilisateurs.
+  - name: Story
+    description: Gestion des histoires des utilisateurs.
+
+paths:
+  /follow:
+    post:
+      tags:
+        - Follow
+      summary: Suivre un utilisateur
+      description: Permet à un utilisateur de suivre un autre utilisateur.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idActor:
+                  type: integer
+                  example: 123
+      responses:
+        '201':
+          description: Relation de suivi créée avec succès.
+        '400':
+          description: Erreur de validation ou relation de suivi déjà existante.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Utilisateur ou acteur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /unfollow:
+    post:
+      tags:
+        - Follow
+      summary: Ne plus suivre un utilisateur
+      description: Permet à un utilisateur de ne plus suivre un autre utilisateur.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idActor:
+                  type: integer
+                  example: 123
+      responses:
+        '200':
+          description: Relation de suivi supprimée avec succès.
+        '400':
+          description: Relation de suivi non trouvée.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /myfollowers:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés de l'utilisateur actuel
+      description: Récupère la liste des abonnés de l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /myfollowing:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par l'utilisateur actuel
+      description: Récupère la liste des utilisateurs Follow par l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /followerbytailor/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés d'un acteur spécifique
+      description: Récupère la liste des abonnés d'un acteur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Acteur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /followingbytailor/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par un acteur spécifique
+      description: Récupère la liste des utilisateurs Follow par un acteur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Acteur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /getFollowers/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés d'un utilisateur spécifique
+      description: Récupère la liste des abonnés d'un utilisateur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Utilisateur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /getFollowing/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par un utilisateur spécifique
+      description: Récupère la liste des utilisateurs Follow par un utilisateur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Utilisateur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /getMyFollowers:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés de l'utilisateur authentifié
+      description: Récupère la liste des abonnés de l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /getMyFollowing:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par l'utilisateur authentifié
+      description: Récupère la liste des utilisateurs Follow par l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /create:
+    post:
+      tags:
+        - Story
+      summary: Créer une histoire
+      description: Crée une nouvelle histoire pour l'utilisateur authentifié.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Titre de l'histoire"
+                description:
+                  type: string
+                  example: "Description de l'histoire"
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Histoire créée avec succès.
+        '400':
+          description: Erreur de validation ou format invalide.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /delete/{idStory}:
+    delete:
+      tags:
+        - Story
+      summary: Supprimer une histoire
+      description: Supprime une histoire spécifique créée par l'utilisateur authentifié.
+      parameters:
+        - name: idStory
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Histoire supprimée avec succès.
+        '400':
+          description: Erreur d'autorisation ou histoire non trouvée.
+        '404':
+          description: Histoire non trouvée.
+        '500':
+          description: Erreur serveur.
+
+  /view/{idStory}:
+    post:
+      tags:
+        - Story
+      summary: Voir une histoire
+      description: Augmente le compteur de vues pour une histoire spécifique.
+      parameters:
+        - name: idStory
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Vue de l'histoire mise à jour avec succès.
+        '400':
+          description: L'utilisateur ne peut pas voir sa propre histoire.
+        '404':
+          description: Histoire non trouvée.
+        '500':
+          description: Erreur serveur.
+
+  /views/{idStory}:
+    get:
+      tags:
+        - Story
+      summary: Obtenir les vues d'une histoire
+      description: Récupère le nombre de vues pour une histoire spécifique.
+      parameters:
+        - name: idStory
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Nombre de vues récupéré avec succès.
+        '403':
+          description: Utilisateur non autorisé à voir les vues.
+        '404':
+          description: Histoire non trouvée.
+        '500':
+          description: Erreur serveur.
+
+  /myStory:
+    get:
+      tags:
+        - Story
+      summary: Obtenir les histoires de l'utilisateur authentifié
+      description: Récupère toutes les histoires créées par l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des histoires récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /followedStory:
+    get:
+      tags:
+        - Story
+      summary: Obtenir les histoires des utilisateurs Follow
+      description: Récupère les histoires des utilisateurs que l'utilisateur authentifié suit.
+      responses:
+        '200':
+          description: Liste des histoires récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
