@@ -134,7 +134,11 @@ export default class UserController {
 }
 
     static getUser = async (req: Request, res: Response) => {
+      
         const idUser = req.params.userId;
+        if (!idUser) {
+            return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+        }
         try{
         const user = await prisma.user.findUnique({
             where: {
@@ -239,21 +243,19 @@ export default class UserController {
     static getCredits = async (req: Request, res: Response) => {
         try {
             const idUser = req.params.userId;
-            
+            console.log('idUser', idUser); 
             if (!idUser) {
                 return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
             }
+            const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
+            if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
+            if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
+            res.status(200).json({ message: "Credits added successfully", data: tailor, status: 200 });
     
            
-            const actors = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) }, include: { user: true } });
-            if (!actors) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
-
     
-            res.status(200).json({ 
-                message: "Credits retrieved successfully", 
-                data: actors, 
-                status: 200 
-            });
+            
         } catch (error: any) {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }

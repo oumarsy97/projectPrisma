@@ -7,7 +7,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import cors from 'cors'; // Importez cors ici
-
 import dotenv from 'dotenv';
 
 // Import your routes
@@ -25,20 +24,20 @@ const app = express();
 app.use(express.json());
 
 // Middleware for parsing JSON bodies
-app.use(express.json()); 
+// app.use(express.json()); 
 
 // Configurez CORS
 app.use(cors()); // Ajoutez ce middleware pour gérer CORS
 
 // Déterminez le répertoire actuel
-const __filename = fileURLToPath(import.meta.url);
+ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Chargez le fichier Swagger YAML
 const swaggerDocument = YAML.load(path.join(__dirname, '..', 'src', 'config', 'swagger.yaml'));
 
 // Middleware Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Route de base pour les tests
 // Basic route for testing
@@ -59,7 +58,7 @@ const prisma = new PrismaClient();
 const deleteOldStories = async () => {
     console.log('Attempting to delete old stories...');
     try { 
-        const threeMinutesAgo = new Date(Date.now() - 3 * 60 *60 * 1000); // 3 minutes ago
+        const threeMinutesAgo = new Date(Date.now() - 3 * 60 *60*60* 1000); // 3 minutes ago
 
         const result = await prisma.story.deleteMany({
             where: {

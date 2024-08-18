@@ -1,93 +1,80 @@
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from '@prisma/client';
 
-// Étendre l'interface Request d'Express pour inclure userId
-declare global {
-    namespace Express {
-        interface Request {
-            userId?: number; // Définir userId comme propriété optionnelle
-        }
-    }
-}
-
 const prisma = new PrismaClient();
-
 export default class Middleware {
 
     static auth = (req: Request, res: Response, next: NextFunction) => {
         const entete = req.headers.authorization;
         let token;
-        if (entete) {
+       if(entete){
             token = entete.split(" ")[1];
-        } else {
-            return res.status(401).json({ message: "Token not found" });
-        }
+       }else{
+           res.status(401).json({ message: "token not found" });
+       } 
 
         if (token) {
-            try {
-                const decoded = jwt.verify(token, process.env.SECRET_KEY as string) as { id: number };
-                req.userId = decoded.id; // Assurez-vous que `userId` est défini dans le `req`
+            const decoded = jwt.verify(token, process.env.SECRET_KEY as string);
+            if (decoded) {
+                req.params.userId = (decoded as any).id;
                 next();
-            } catch (error) {
-                return res.status(401).json({ message: "Token not valid" });
             }
-        } else {
-            return res.status(401).json({ message: "Token not found" });
+            else {
+                res.status(401).json({ message: "token not valid" });
+            }
+        }
+        else {
+            res.status(401).json({ message: "token not found" });
         }
     }
 
     static isTailor = async (req: Request, res: Response, next: NextFunction) => {
-        const idUser = req.userId;
-        if (!idUser) {
-            return res.status(401).json({ message: "User ID is missing", data: null, status: false });
-        }
-
-        try {
-            const user = await prisma.user.findUnique({ where: { id: idUser } });
-            if (user?.role === "TAILOR") {
-                next();
-            } else {
-                res.status(401).json({ message: "You are not a tailor" });
+        const idUser = req.params.userId;
+        const user =await prisma.user.findUnique({
+            where: {
+                id: Number(idUser)
             }
-        } catch (error) {
-            res.status(500).json({ message: (error as Error).message, data: null, status: false });
+        });
+        if (user?.role === "TAILOR") {
+            next();
         }
+        else {
+            res.status(401).json({ message: "you are not a tailor" });
+        }
+       
     }
 
-    static isVendor = async (req: Request, res: Response, next: NextFunction) => {
-        const idUser = req.userId;
-        if (!idUser) {
-            return res.status(401).json({ message: "User ID is missing", data: null, status: false });
-        }
-
-        try {
-            const user = await prisma.user.findUnique({ where: { id: idUser } });
+    static isVendor = (req: Request, res: Response, next: NextFunction) => {
+        const idUser = req.params.userId;
+        prisma.user.findUnique({
+            where: {
+                id: Number(idUser)
+            }
+        }).then((user) => {
             if (user?.role === "VENDOR") {
                 next();
-            } else {
-                res.status(401).json({ message: "You are not a vendor" });
             }
-        } catch (error) {
-            res.status(500).json({ message: (error as Error).message, data: null, status: false });
-        }
+            else {
+                res.status(401).json({ message: "you are not a vendor" });
+            }
+        });
     }
 
-    static isActor = async (req: Request, res: Response, next: NextFunction) => {
-        const idUser = req.userId;
-        if (!idUser) {
-            return res.status(401).json({ message: "User ID is missing", data: null, status: false });
-        }
-
-        try {
-            const user = await prisma.user.findUnique({ where: { id: idUser } });
+    static isActor = (req: Request, res: Response, next: NextFunction) => {
+        const idUser = req.params.userId;
+        prisma.user.findUnique({
+            where: {
+                id: Number(idUser)
+            }
+        }).then((user) => {
             if (user?.role === "TAILOR" || user?.role === "VENDOR") {
                 next();
-            } else {
-                res.status(401).json({ message: "You are not an actor" });
             }
-        } catch (error) {
-            res.status(500).json({ message: (error as Error).message, data: null, status: false });
-        }
+            else {
+                res.status(401).json({ message: "you are not a Actor" });
+            }
+        });
     }
 }
