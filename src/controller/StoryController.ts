@@ -1,55 +1,50 @@
-// StoryController.ts
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Story, User, Actor } from '@prisma/client';
 import { z } from 'zod';
 
 const prisma = new PrismaClient();
 
+// Schéma Zod pour la validation
 const storySchema = z.object({
-  title: z.string().nonempty({ message: "Title is required" }),
-  description: z.string().nonempty({ message: "Description is required" }),
+  title: z.string(),
+  description: z.string(),
+  photo: z.string(),
 });
 
 type StoryData = z.infer<typeof storySchema>;
 
 interface CustomRequest extends Request {
   userId?: number;
-  file?: any;
 }
 
 export default class StoryController {
     static create = async (req: CustomRequest, res: Response) => {
-        const { title, description } = req.body;
-        const photo = req.file?.path || ""; 
-
-        if (!req.userId) {
-            return res.status(401).json({ message: "Unauthorized: User ID is missing", data: null, status: false });
-        }
-
-        const idActory = Number(req.userId);
-        if (isNaN(idActory)) {
-            return res.status(400).json({ message: "Invalid User ID format", data: null, status: false });
-        }
-
-        const validation = storySchema.safeParse({ title, description });
+        const { title, description, photo }: StoryData = req.body;
+        const idActory = req.userId;
+      
+        const validation = storySchema.safeParse({ title, description, photo });
         if (!validation.success) {
-            return res.status(400).json({ message: validation.error.errors[0].message, data: null, status: false });
+          return res.status(400).json({ message: validation.error.errors[0].message, data: null, status: false });
         }
-
+      
+        if (idActory === undefined) {
+          return res.status(401).json({ message: "Unauthorized: User ID is missing", data: null, status: false });
+        }
+      
         try {
-            const newStory = await prisma.story.create({
-                data: {
-                    title,
-                    description,
-                    photo, // This field is always a string
-                    idActory,
-                },
-            });
-            res.status(201).json({ message: "Story created successfully", data: newStory, status: true });
+          const newStory = await prisma.story.create({
+            data: {
+              title,
+              description,
+              photo,
+              idActory,
+            },
+          });
+          res.status(201).json({ message: "Story created successfully", data: newStory, status: true });
         } catch (error) {
-            res.status(400).json({ message: (error as Error).message, data: null, status: false });
+          res.status(400).json({ message: (error as Error).message, data: null, status: false });
         }
-    };
+      };
 
   static deleteStory = async (req: CustomRequest, res: Response) => {
     try {
@@ -160,7 +155,7 @@ export default class StoryController {
       const followedActorIds = follows.map(follow => follow.idActor);
 
       // if (user.actor) {
-      //   followedActorIds.;
+      //   followedActorIds.push(actor.id);
       // }
 
       const stories = await prisma.story.findMany({
