@@ -415,6 +415,7 @@ static getComments = async (req: Request, res: Response) => {
 }
 
 //post
+//post
 static  createPost = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
@@ -423,14 +424,16 @@ static  createPost = async (req: Request, res: Response) => {
                 id: Number(userId)
             }
         });
+
         if (user === null) {
             return res.status(400).json({ message: "User not found" });
         }
-        const actor = await prisma.user.findUnique({
+        const actor = await prisma.actor.findUnique({
             where: {
-                id: Number(userId)
+                idUser: Number(userId)
             }
         })
+
         if (actor === null) {
             return res.status(400).json({ message: "Actor not found" });
         }
@@ -439,17 +442,18 @@ static  createPost = async (req: Request, res: Response) => {
                 idActor: Number(actor.id),
                 title: req.body.title,
                 content: req.body.content,
-                category: req.body.image,
+                category: req.body.category,
                 description: req.body.description,
-
             },
         });
+        //  console.log(actor);
+
         res.json({ message: "Post created successfully",
             data: newPost,
             status: 200
         });
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server errors" });
     }
 }
 //supprimer un post

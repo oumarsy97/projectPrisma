@@ -63,7 +63,6 @@ export default class UserController {
           });
     }
 }
- 
     static login = async (req: Request, res: Response) => {
         const validationResult = Validation.validateLogin.safeParse(req.body);
         if(!validationResult.success) {
@@ -73,6 +72,7 @@ export default class UserController {
         const user = await prisma.user.findUnique({
             where: {
                 email: req.body.email
+
             }
         });
         if(user && Utils.comparePassword(req.body.password, user.password)) {

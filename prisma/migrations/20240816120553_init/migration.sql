@@ -102,13 +102,15 @@ CREATE TABLE `tags` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `tags_name_idPost_key`(`name`, `idPost`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `shares` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `idUser` INTEGER NOT NULL,
+    `fromUserId` INTEGER NOT NULL,
+    `toUserId` INTEGER NOT NULL,
     `idPost` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -280,10 +282,13 @@ ALTER TABLE `comments` ADD CONSTRAINT `comments_idStory_fkey` FOREIGN KEY (`idSt
 ALTER TABLE `tags` ADD CONSTRAINT `tags_idPost_fkey` FOREIGN KEY (`idPost`) REFERENCES `posts`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `shares` ADD CONSTRAINT `shares_idUser_fkey` FOREIGN KEY (`idUser`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `shares` ADD CONSTRAINT `shares_idPost_fkey` FOREIGN KEY (`idPost`) REFERENCES `posts`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `shares` ADD CONSTRAINT `shares_idPost_fkey` FOREIGN KEY (`idPost`) REFERENCES `posts`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `shares` ADD CONSTRAINT `shares_fromUserId_fkey` FOREIGN KEY (`fromUserId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `shares` ADD CONSTRAINT `shares_toUserId_fkey` FOREIGN KEY (`toUserId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `reposts` ADD CONSTRAINT `reposts_idUser_fkey` FOREIGN KEY (`idUser`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -292,7 +297,7 @@ ALTER TABLE `reposts` ADD CONSTRAINT `reposts_idUser_fkey` FOREIGN KEY (`idUser`
 ALTER TABLE `reposts` ADD CONSTRAINT `reposts_idPost_fkey` FOREIGN KEY (`idPost`) REFERENCES `posts`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `reports` ADD CONSTRAINT `reports_idUser_fkey` FOREIGN KEY (`idUser`) REFERENCES `actors`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `reports` ADD CONSTRAINT `reports_idUser_fkey` FOREIGN KEY (`idUser`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `reports` ADD CONSTRAINT `reports_idPost_fkey` FOREIGN KEY (`idPost`) REFERENCES `posts`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

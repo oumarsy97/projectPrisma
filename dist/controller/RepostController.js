@@ -3,7 +3,12 @@ const prisma = new PrismaClient();
 export default class RepostController {
     static createRepost = async (req, res) => {
         const idPost = Number(req.params.idPost);
-        const { idUser } = req.body;
+        const idUser = Number(req.params.userId);
+        // console.log( req.body );
+        // console.log(idPost );
+        if (!idUser) {
+            return res.status(400).json({ message: "idUser is required" });
+        }
         try {
             const actor = await prisma.actor.findUnique({
                 where: {
@@ -60,7 +65,7 @@ export default class RepostController {
     };
     static deleteRepost = async (req, res) => {
         const idRepost = Number(req.params.idRepost);
-        const { idUser } = req.body;
+        const idUser = Number(req.params.userId);
         try {
             const actor = await prisma.actor.findUnique({
                 where: {

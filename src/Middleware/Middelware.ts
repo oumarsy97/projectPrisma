@@ -19,6 +19,8 @@ export default class Middleware {
             const decoded = jwt.verify(token, process.env.SECRET_KEY as string);
             if (decoded) {
                 req.params.userId = (decoded as any).id;
+                console.log(req.params.userId);
+                
                 next();
             }
             else {
@@ -28,6 +30,7 @@ export default class Middleware {
         else {
             res.status(401).json({ message: "token not found" });
         }
+       
     }
 
     static isTailor = async (req: Request, res: Response, next: NextFunction) => {

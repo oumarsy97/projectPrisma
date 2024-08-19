@@ -15,6 +15,7 @@ export default class Middleware {
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
             if (decoded) {
                 req.params.userId = decoded.id;
+                console.log(req.params.userId);
                 next();
             }
             else {
