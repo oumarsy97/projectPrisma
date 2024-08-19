@@ -71,6 +71,7 @@ model User {
   Share Share[] @relation("SharesFromUser")
   received Share[] @relation("SharesToUser")
   report Report[]
+  Notes Notes[]
 }
 
 model Favori {
@@ -89,6 +90,7 @@ model Actor {
   user  User @relation(fields: [idUser], references: [id])
   address String
   bio String
+  votes   Int
   produits Produit[]
   credits Int @default(50)
   vote Int @default(0)
@@ -112,6 +114,7 @@ model Post {
   size SIZE @default(M)
   content Json
   idActor Int
+  notes Notes[]
   user  Actor @relation(fields: [idActor], references: [id])
   likes Like[]
   dislikes Dislike[]
@@ -125,6 +128,19 @@ model Post {
   updatedAt DateTime @updatedAt
   favoris Favori[]
   @@map("posts")
+}
+
+model Notes {
+  id        Int      @id @default(autoincrement())
+  note      Int
+  idUser    Int
+  author    User     @relation(fields: [idUser], references: [id])
+  postId    Int      // Added a field for the relation with Post
+  post      Post     @relation(fields: [postId], references: [id]) // Relation with Post
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
 }
 
 model Like {
@@ -316,12 +332,3 @@ model Chat {
   updatedAt DateTime @updatedAt
   @@map("chats")
 }
-
-
-
-
-
-
-
-
-

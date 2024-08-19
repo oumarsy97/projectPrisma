@@ -8,14 +8,15 @@ export default class ProduitController {
             return res.status(400).json({ message: validationResult.error.message, status: 400 });
         }
         try {
+            const idUser = Number(req.params.userId); // Assurez-vous que cette valeur est définie
             const userExists = await prisma.user.findUnique({
-                where: { id: req.body.idUser }
+                where: { id: idUser }
             });
             if (!userExists) {
                 return res.status(400).json({ message: "User not found", status: 400 });
             }
             const actor = await prisma.actor.findUnique({
-                where: { idUser: req.body.idUser }
+                where: { idUser: idUser }
             });
             const credit = actor?.credits || 0;
             if (credit < 10) {

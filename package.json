@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon ./dist/app.js",
-    "build": "tsc",
+    "build": "tsc --watch",
     "migrate": "npx prisma migrate dev --name init"
   },
   "keywords": [],
@@ -19,7 +19,11 @@
     "@types/node": "^22.3.0",
     "@types/node-fetch": "^2.6.11",
     "@types/nodemailer": "^6.4.15",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@types/yamljs": "^0.2.34",
     "nodemon": "^3.1.4",
+    "swagger-jsdoc": "^6.2.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
@@ -34,6 +38,8 @@
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.14",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0",
     "zod": "^3.23.8"
   }
 }

@@ -17,6 +17,7 @@ export default class UserController {
                     lastname: req.body.lastname,
                     phone: req.body.phone,
                     photo: req.body.photo,
+                    role: req.body.role,
                     email: req.body.email,
                     password: password
                 }
@@ -68,6 +69,9 @@ export default class UserController {
                     email: req.body.email
                 }
             });
+            if (!user) {
+                res.json({ message: "User not found" });
+            }
             if (user && Utils.comparePassword(req.body.password, user.password)) {
                 const token = Utils.generateToken(user.id);
                 res.json({ message: "User logged in successfully",

@@ -32,6 +32,9 @@ export default class Middleware {
 
     static isTailor = async (req: Request, res: Response, next: NextFunction) => {
         const idUser = req.params.userId;
+        if (!idUser) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
         const user =await prisma.user.findUnique({
             where: {
                 id: Number(idUser)
@@ -46,24 +49,29 @@ export default class Middleware {
        
     }
 
-    static isVendor = (req: Request, res: Response, next: NextFunction) => {
+    static isVendor = async (req: Request, res: Response, next: NextFunction) => {
         const idUser = req.params.userId;
-        prisma.user.findUnique({
+        if (!idUser) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+        const user = await prisma.user.findUnique({
             where: {
                 id: Number(idUser)
             }
-        }).then((user:any) => {
-            if (user?.role === "VENDOR") {
-                next();
-            }
-            else {
-                res.status(401).json({ message: "you are not a vendor" });
-            }
         });
+        if (user?.role === "VENDOR") {
+            next();
+        }
+        else {
+            res.status(401).json({ message: "you are not a vendor" });
+        }
     }
 
     static isActor = (req: Request, res: Response, next: NextFunction) => {
         const idUser = req.params.userId;
+        if (!idUser) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
         prisma.user.findUnique({
             where: {
                 id: Number(idUser)
