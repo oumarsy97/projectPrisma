@@ -9,6 +9,8 @@ router.get("/credits", Middleware.auth,Middleware.isActor, UserController.getCre
 router.post("/", UserController.createUser);
  router.get("/", UserController.getAllUsers);
  router.get("/:id", UserController.getUserById);
+ router.post("/becometailor" ,Middleware.auth,UserController.becomeTailor);
+ router.post("/becomevendor" ,Middleware.auth,UserController.becomeVendor);
 //credit 
 router.post("/ajoutercredits" ,Middleware.auth,Middleware.isActor, UserController.addCredit);
 router.post("/achatcode" ,Middleware.auth,Middleware.isActor, UserController.achatCode);

@@ -3,7 +3,7 @@ import Middleware from "../Middleware/Middelware.js";
 import express from "express";
 const router = express.Router();
 router.post("/follow", Middleware.auth, FollowController.follow);
-router.post("/unfollow", Middleware.auth, FollowController.unfollow);
+router.post("/unfollow", Middleware.auth, FollowController.follow);
 router.get("/myfollowers", Middleware.auth, FollowController.getFollowers);
 router.get("/myfollowing", Middleware.auth, FollowController.getFollowing);
 router.get("/followerbytailor/:id", Middleware.auth, FollowController.getFollowers);

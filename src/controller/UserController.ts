@@ -252,15 +252,89 @@ export default class UserController {
             const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
             if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
             res.status(200).json({ message: "Credits added successfully", data: tailor, status: 200 });
-    
-           
-    
-            
+
         } catch (error: any) {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }
     };
 
+    //become tailor
+    static becomeTailor = async (req: Request, res: Response) => {
+        try {
+            const idUser = req.params.userId;
+            if (!idUser) {
+                return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+            }
+            const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
+            if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
+            if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
+            const newTailor = await prisma.actor.create({
+                data: {
+                    idUser: parseInt(idUser),
+                    credits: 50,
+                    address: req.body.address,
+                    bio: req.body.bio,
+                    role: "TAILOR"
+                },
+                include: {
+                    user: true
+                }
+                
+            })
+            const updateUser = await prisma.user.update({
+                where: { id: parseInt(idUser) },
+                data: {
+                    role: "TAILOR"
+                }
+            })
+            
+           
+            res.status(200).json({ message: "Tailor created successfully", data: newTailor, status: 200 });
+        } catch (error: any) {
+            res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
+        }
+    };
+    
+    //become vendor
+    static becomeVendor = async (req: Request, res: Response) => {
+        try {
+            const idUser = req.params.userId;
+            if (!idUser) {
+                return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+            }
+            const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
+            if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const vendor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
+            if (!vendor) return res.status(404).json({ message: "Vendor not found", data: null, status: 404 });
+            const newVendor = await prisma.actor.create({
+                data: {
+                    idUser: parseInt(idUser),
+                    address: req.body.address,
+                    bio: req.body.bio,
+                    role: "VENDOR"
+                },
+                include: {
+                    user: true
+                }
+                
+            })
+            const updateUser = await prisma.user.update({
+                where: { id: parseInt(idUser) },
+                data: {
+                    role: "VENDOR"
+                }
+            })
+            
+
+            res.status(200).json({ message: "Vendor created successfully", data: newVendor, status: 200 });
+        } catch (error: any) {
+            res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
+        }
+    }
 
 
 }
+
+
+

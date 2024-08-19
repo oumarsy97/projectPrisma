@@ -3,7 +3,7 @@ import Middleware from "../Middleware/Middelware.js";
 import PostController from "../controller/PostController.js";
 const router = Router();
 
-//post 
+//post  
 router.post("/", Middleware.auth,Middleware.isTailor, PostController.createPost);
 router.get("/", Middleware.auth, PostController.allposts);
 router.get("/myposts", Middleware.auth,Middleware.isTailor, PostController.mypost);
