@@ -90,10 +90,9 @@ model Actor {
   user  User @relation(fields: [idUser], references: [id])
   address String
   bio String
-  votes   Int
   produits Produit[]
   credits Int @default(50)
-  vote Int @default(0)
+  votes Int @default(0)
   role Role @default(TAILOR)
   follow Follow[]
   ventes Vente[]

@@ -9,6 +9,7 @@ router.get("/myposts", Middleware.auth, Middleware.isTailor, PostController.mypo
 router.get("/byactor", Middleware.auth, PostController.getPostActor);
 router.put("/:postId", Middleware.auth, Middleware.isTailor, PostController.updatepost);
 router.delete("/:id", Middleware.auth, Middleware.isTailor, PostController.deletePost);
+router.post("/notes", Middleware.auth, PostController.noterPost);
 //share
 router.post("/shares/", Middleware.auth, PostController.createShare);
 router.get("/shares/myshares", Middleware.auth, PostController.getSharedMe);
