@@ -21,6 +21,8 @@ export default class UserController {
                     password: password
                 }
             });
+            Messenger.sendMail(user.email, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
+            Messenger.sendSms(user.phone, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
             res.json({ message: "User created successfully",
                 data: user,
                 status: 200
@@ -197,7 +199,7 @@ export default class UserController {
                     credit: montant / 100,
                 }
             });
-            const recu = `Recu Montant : ${newCode.price}<br>Code : ${newCode.code}<br>Credits : ${newCode.credit}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;
+            const recu = `Recu Montant : ${newCode.price} Code : ${newCode.code}Credits : ${newCode.credit} Date : ${newCode.createdAt} expire dans 7 jours`;
             // Envoi du SMS et email via Messenger
             if (user.phone) {
                 await Messenger.sendSms(user.phone, 'Tailor Digital', `Votre code de paiement est : ${recu}`);
@@ -260,12 +262,14 @@ export default class UserController {
                     user: true
                 }
             });
-            const updateUser = await prisma.user.update({
+            await prisma.user.update({
                 where: { id: parseInt(idUser) },
                 data: {
                     role: "TAILOR"
                 }
             });
+            Messenger.sendMail(user.email, 'Tailor Digital', `Votre compte est maintenant un Tailor vous avez 50 credits`);
+            Messenger.sendSms(user.phone, 'Tailor Digital', `Votre compte est maintenant un Tailor vous avez 50 credits`);
             res.status(200).json({ message: "Tailor created successfully", data: newTailor, status: 200 });
         }
         catch (error) {

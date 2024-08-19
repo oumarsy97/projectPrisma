@@ -407,6 +407,9 @@ export default class ShareController {
             if (actor === null) {
                 return res.status(400).json({ message: "Actor not found" });
             }
+            if (actor.credits < 10) {
+                return res.status(400).json({ message: "Actor does not have enough credits" });
+            }
             const newPost = await prisma.post.create({
                 data: {
                     idActor: Number(actor.id),
@@ -417,6 +420,16 @@ export default class ShareController {
                 },
             });
             //  console.log(actor);
+            await prisma.actor.update({
+                where: {
+                    id: Number(actor.id)
+                },
+                data: {
+                    credits: {
+                        decrement: 10
+                    }
+                }
+            });
             res.json({ message: "Post created successfully",
                 data: newPost,
                 status: 200
