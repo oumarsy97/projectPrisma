@@ -872,6 +872,7 @@ static noterPost = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ message: error.message, data: null, status: false });
     }
+
 }
 
 }

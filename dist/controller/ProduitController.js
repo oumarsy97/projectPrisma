@@ -286,4 +286,54 @@ export default class ProduitController {
             });
         }
     };
+    static noterProduit = async (req, res) => {
+        try {
+            const { idProduit, note } = req.body;
+            const idUser = req.params.userId;
+            if (note < 1 || note > 5) {
+                return res.status(400).json({ message: "La note doit être comprise entre 1 et 5", status: false });
+            }
+            const user = await prisma.user.findUnique({
+                where: { id: Number(idUser) }
+            });
+            if (!user)
+                return res.status(404).json({ message: "Utilisateur non trouvé", data: null, status: 404 });
+            const produit = await prisma.produit.findUnique({
+                where: { id: Number(idProduit) },
+                include: { notes: true }
+            });
+            if (!produit)
+                return res.status(404).json({ message: "Produit non trouvé", data: null, status: 404 });
+            const notesExist = produit.notes.findIndex(r => r.idUser === Number(idUser));
+            if (notesExist !== -1) {
+                await prisma.notes.update({
+                    where: { id: produit.notes[notesExist].id },
+                    data: { note }
+                });
+            }
+            else {
+                await prisma.notes.create({
+                    data: {
+                        note,
+                        idUser: Number(idUser),
+                        produitId: Number(idProduit)
+                    }
+                });
+            }
+            const actor = await prisma.actor.findUnique({
+                where: { idUser: produit.idActor }
+            });
+            if (actor) {
+                actor.votes = (actor.votes || 0) + note;
+                await prisma.actor.update({
+                    where: { id: actor.id },
+                    data: { votes: actor.votes }
+                });
+            }
+            res.status(200).json({ message: "Produit noté avec succès", status: true });
+        }
+        catch (error) {
+            res.status(500).json({ message: error.message, data: null, status: false });
+        }
+    };
 }

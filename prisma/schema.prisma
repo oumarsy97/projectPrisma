@@ -134,12 +134,15 @@ model Notes {
   note      Int
   idUser    Int
   author    User     @relation(fields: [idUser], references: [id])
-  postId    Int      // Added a field for the relation with Post
-  post      Post     @relation(fields: [postId], references: [id]) // Relation with Post
+  postId    Int?     
+  post      Post?     @relation(fields: [postId], references: [id])
+  produitId Int?
+  produit   Produit?  @relation("NoteProduit", fields: [produitId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("notes")
+  Produit Produit[]
 }
 
 model Like {
@@ -231,12 +234,14 @@ model Produit {
   image String
   price Float
   qte Int
-  idUser Int
-  vendor  Actor @relation(fields: [idUser], references: [id])
+  idActor Int
+  notes Notes[]
+  vendor  Actor @relation(fields: [idActor], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   commandes CommandeProduit[] 
   ventes Vente[]
+  Notes Notes[] @relation("NoteProduit")
 
   @@map("produits")
 }

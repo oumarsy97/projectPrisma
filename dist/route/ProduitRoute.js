@@ -7,6 +7,7 @@ router.post('/', Middleware.auth, Middleware.isVendor, ProduitController.addProd
 router.put('/:id', Middleware.auth, Middleware.isVendor, ProduitController.updateProduit);
 router.get('/:id', Middleware.auth, ProduitController.findProduit);
 router.get('/user/:idUser', Middleware.auth, ProduitController.findProduitUser);
+router.post("/notes", Middleware.auth, ProduitController.noterProduit);
 // Routes pour les commandes
 router.post('/commandes', Middleware.auth, ProduitController.newCommande);
 router.post('/commandes/produit', Middleware.auth, ProduitController.addCommandeProduit);
