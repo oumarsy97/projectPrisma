@@ -6,7 +6,9 @@ const router = Router();
 router.post("/", UserController.createUser);
 router.post("/login", UserController.login);
 router.get("/monprofile",Middleware.auth, UserController.getUser);
-router.post("/ajoutercredits" ,Middleware.auth, UserController.addCredit);
-router.post("/achatcode" ,Middleware.auth, UserController.achatCode);
-router.get("/credits", Middleware.auth, UserController.getCredits);
+
+//credit
+router.post("/ajoutercredits" ,Middleware.auth,Middleware.isActor, UserController.addCredit);
+router.post("/achatcode" ,Middleware.auth,Middleware.isActor, UserController.achatCode);
+router.get("/credits", Middleware.auth,Middleware.isActor, UserController.getCredits);
 export default router

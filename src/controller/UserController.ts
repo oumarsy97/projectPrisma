@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
 import { Request, Response } from "express";
 import Validation from '../Validation/Validation.js';
-import Messenger from '../utils/Messenger.js';
+import Messenger from '../utils/Messenger.js'; 
 
 const prisma = new PrismaClient();
 
@@ -169,17 +169,16 @@ export default class UserController {
     
             if (montant < 100) return res.status(400).json({ message: "Montant invalide", data: null, status: 400 });
     
-            const newGenerateCode = {
+           
+    
+            const newCode = await prisma.generateCode.create({ data:{
                 price: montant,
-                modePaiement: modePaiement,
-                code: Utils.Code().toString(), 
+                code: Utils.generateRandomNumber(12), 
                 credit: montant / 100,
-                userId: idUser
-            };
+            }
+             });
     
-            const newCode = await prisma.generateCode.create({ data: newGenerateCode });
-    
-            const recu = `Recu<br>Montant : ${newCode.price}<br>Code : ${newCode.code}<br>Credits : ${newCode.credit}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;        
+            const recu = `Recu Montant : ${newCode.price}<br>Code : ${newCode.code}<br>Credits : ${newCode.credit}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;        
             
             // Envoi du SMS et email via Messenger
             if (user.phone) {
@@ -192,12 +191,7 @@ export default class UserController {
             // Ne renvoyez pas les informations sensibles dans la réponse
             res.status(200).json({ 
                 message: "Code created successfully", 
-                data: { 
-                    code: newCode.code, 
-                    credit: newCode.credit, 
-                    price: newCode.price,
-                    createdAt: newCode.createdAt
-                }, 
+                data: newCode,
                 status: 200 
             });
         } catch (error: any) {
@@ -213,26 +207,21 @@ export default class UserController {
                 return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
             }
     
-            const user = await prisma.user.findUnique({ 
-                where: { id: parseInt(idUser) },
-                include: { actor: true }
-            });
-    
-            if (!user) {
-                return res.status(404).json({ message: "User not found", data: null, status: 404 });
-            }
-    
-            if (!user.actor) {
-                return res.status(404).json({ message: "Actor profile not found for this user", data: null, status: 404 });
-            }
+           
+            const actors = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) }, include: { user: true } });
+            if (!actors) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
+
     
             res.status(200).json({ 
                 message: "Credits retrieved successfully", 
-                data: { credits: user.actor.credits }, 
+                data: actors, 
                 status: 200 
             });
         } catch (error: any) {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }
     };
+
+
+
 }

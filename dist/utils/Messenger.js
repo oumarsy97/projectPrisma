@@ -13,7 +13,7 @@ export default class Messenger {
     static async sendMail(destination, name, message) {
         try {
             await this.transporter.sendMail({
-                from: '"Cargo Express" <syoumar505@gmail.com>',
+                from: '"Tailor Digital" <syoumar505@gmail.com>',
                 to: destination,
                 subject: 'Tailor Digital',
                 text: message,
@@ -34,7 +34,7 @@ export default class Messenger {
         const raw = JSON.stringify({
             "messages": [
                 {
-                    "destinations": [{ "to": destination }],
+                    "destinations": [{ "to": "781807229" }],
                     "from": "Tailor Digital",
                     "text": message
                 }
