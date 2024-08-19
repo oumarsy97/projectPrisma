@@ -5,6 +5,9 @@ CREATE TYPE "Genre" AS ENUM ('MALE', 'FEMALE');
 CREATE TYPE "Role" AS ENUM ('TAILOR', 'USER', 'VENDOR');
 
 -- CreateEnum
+CREATE TYPE "STATUT" AS ENUM ('PENDING', 'VALIDATED');
+
+-- CreateEnum
 CREATE TYPE "SIZE" AS ENUM ('XS', 'S', 'M', 'L', 'XL');
 
 -- CreateEnum
@@ -193,8 +196,8 @@ CREATE TABLE "ventes" (
 CREATE TABLE "commandes" (
     "id" SERIAL NOT NULL,
     "idUser" INTEGER NOT NULL,
-    "idProduit" INTEGER NOT NULL,
     "montant" DOUBLE PRECISION NOT NULL,
+    "statut" "STATUT" NOT NULL DEFAULT 'PENDING',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

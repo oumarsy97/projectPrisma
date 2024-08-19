@@ -103,7 +103,7 @@ export default class ShareController {
     static createReport = async (req, res) => {
         try {
             const userId = req.params.userId;
-            const postId = req.body.postId;
+            const postId = req.params.postId;
             const user = await prisma.user.findUnique({
                 where: {
                     id: Number(userId)
@@ -266,7 +266,7 @@ export default class ShareController {
     static commentPost = async (req, res) => {
         try {
             const userId = req.params.userId;
-            const postId = req.params.idpost;
+            const postId = req.params.postId;
             const user = await prisma.user.findUnique({
                 where: {
                     id: Number(userId)
