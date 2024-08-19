@@ -142,7 +142,6 @@ model Notes {
   updatedAt DateTime @updatedAt
 
   @@map("notes")
-  Produit Produit[]
 }
 
 model Like {
@@ -235,13 +234,12 @@ model Produit {
   price Float
   qte Int
   idActor Int
-  notes Notes[]
+  Notes Notes[] @relation("NoteProduit")
   vendor  Actor @relation(fields: [idActor], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   commandes CommandeProduit[] 
   ventes Vente[]
-  Notes Notes[] @relation("NoteProduit")
 
   @@map("produits")
 }

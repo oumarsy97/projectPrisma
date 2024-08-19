@@ -35,7 +35,7 @@ export default class ProduitController {
                     image: req.body.image,
                     price: req.body.price,
                     qte: req.body.qte,
-                    idUser: Number(req.params.userId)
+                    idActor: Number(req.params.userId)
                 }
             });
             const credits = credit - 10;
@@ -106,7 +106,7 @@ export default class ProduitController {
         try {
             const produits = await prisma.produit.findMany({
                 where: {
-                    idUser: idUser
+                    idActor: idUser
                 }
             });
             res.json({message: "Produits fetched successfully",
@@ -276,7 +276,7 @@ export default class ProduitController {
         try {
             const Produits = await prisma.produit.findMany({
                 where: {
-                    idUser: idVendor
+                    idActor: idVendor
                 },
             });
 
@@ -323,14 +323,14 @@ export default class ProduitController {
 
             const produit = await prisma.produit.findUnique({
                 where: { id: Number(idProduit) },
-                include: { notes: true }
+                include: { Notes: true }
             });
             if (!produit) return res.status(404).json({ message: "Produit non trouvé", data: null, status: 404 });
 
-            const notesExist = produit.notes.findIndex(r => r.idUser === Number(idUser));
+            const notesExist = produit.Notes.findIndex((r: { idUser: number; }) => r.idUser === Number(idUser));
             if (notesExist !== -1) {
                 await prisma.notes.update({
-                    where: { id: produit.notes[notesExist].id },
+                    where: { id: produit.Notes[notesExist].id },
                     data: { note }
                 });
             } else {
