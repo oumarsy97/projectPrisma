@@ -6,6 +6,7 @@ export default class ActorController {
     static createActor = async (req, res) => {
         try {
             const { role } = req.body;
+            console.log(req.body);
             if (role !== "TAILOR" && role !== "VENDOR") {
                 return res.status(400).json({
                     message: "Invalid role provided. Please choose either 'TAILOR' or 'VENDOR'.",
