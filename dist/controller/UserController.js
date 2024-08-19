@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
 import Validation from '../Validation/Validation.js';
 import Messenger from '../utils/Messenger.js';
+const prisma = new PrismaClient();
 export default class UserController {
     static createUser = async (req, res) => {
         const password = Utils.hashPassword(req.body.password);
