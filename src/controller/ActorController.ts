@@ -4,7 +4,7 @@ import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
 
-export default class ActorController{
+export default class ActorController{ 
 
     //create a new actor
     static createActor = async (req: Request, res: Response) => {
