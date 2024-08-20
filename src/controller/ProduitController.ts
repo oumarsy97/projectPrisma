@@ -13,14 +13,16 @@ export default class ProduitController {
             return res.status(400).json({message: validationResult.error.message, status: 400});
         }
         try {
+            
+            const idUser = Number(req.params.userId); // Assurez-vous que cette valeur est définie
             const userExists = await prisma.user.findUnique({
-                where: { id: req.body.idUser }
+                where: { id: idUser }
             });
             if (!userExists) {
                 return res.status(400).json({ message: "User not found", status: 400 });
             }
             const actor = await prisma.actor.findUnique({
-                where: { idUser: req.body.idUser }
+                where: { idUser: idUser }
             });
             const credit = actor?.credits || 0;
             if (credit < 10) {
@@ -304,5 +306,48 @@ export default class ProduitController {
             });
         }
     }
+
+    static noterProduit = async (req: Request, res: Response) => {
+        try {
+            const { idProduit, note } = req.body;
+            const idUser = req.params.userId;
+    
+            if (note < 1 || note > 5) {
+                return res.status(400).json({ message: "La note doit être comprise entre 1 et 5", status: false });
+            }
+    
+            const user = await prisma.user.findUnique({
+                where: { id: Number(idUser) }
+            });
+            if (!user) return res.status(404).json({ message: "Utilisateur non trouvé", data: null, status: 404 });
+    
+            const produit = await prisma.produit.findUnique({
+                where: { id: Number(idProduit) },
+                include: { notes: true }
+            });
+            if (!produit) return res.status(404).json({ message: "Produit non trouvé", data: null, status: 404 });
+    
+     const notesExist = produit.notes.findIndex(r => r.idUser === Number(idUser));  
+    if (notesExist !== -1) {
+        await prisma.notes.update({
+            where: { id: produit.notes[notesExist].id },
+            data: { note }
+        });
+    } else {
+        await prisma.notes.create({
+            data: {
+                note,
+                idUser: Number(idUser),
+                produitId: Number(idProduit)
+            }
+        });
+    
+    }
+    res.status(200).json({ message: "Produit noté avec succès", status: true });
+    } catch (error: any) {
+    res.status(500).json({ message: error.message, data: null, status: false });
+    }
+    }
+    
     
 }

@@ -437,6 +437,9 @@ static  createPost = async (req: Request, res: Response) => {
         if (actor === null) {
             return res.status(400).json({ message: "Actor not found" });
         }
+        if(actor.credits < 10){
+            return res.status(400).json({ message: "Actor does not have enough credits" });
+        }
         const newPost = await prisma.post.create({
             data: {
                 idActor: Number(actor.id),
@@ -447,6 +450,17 @@ static  createPost = async (req: Request, res: Response) => {
             },
         });
         //  console.log(actor);
+
+        await prisma.actor.update({
+            where: {
+                id: Number(actor.id)
+            },
+            data: {
+                credits: {
+                    decrement: 10
+                }
+            }
+        });
 
         res.json({ message: "Post created successfully",
             data: newPost,
@@ -823,8 +837,58 @@ static getfavoris = async (req:Request,res:Response) => {
     }
 }
 
+static noterPost = async (req: Request, res: Response) => {
+    try {
+        const { idPost, note } = req.body;
+        const idUser = req.params.userId;
 
+        if (note < 1 || note > 5) {
+            return res.status(400).json({ message: "La note doit être comprise entre 1 et 5", status: false });
+        }
 
+        const user = await prisma.user.findUnique({
+            where: { id: Number(idUser) }
+        });
+        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé", data: null, status: 404 });
+
+        const post = await prisma.post.findUnique({
+            where: { id: Number(idPost) },
+            include: { notes: true }
+        });
+        if (!post) return res.status(404).json({ message: "Post non trouvé", data: null, status: 404 });
+
+ const notesExist = post.notes.findIndex(r => r.idUser === Number(idUser));
+if (notesExist !== -1) {
+    await prisma.notes.update({
+        where: { id: post.notes[notesExist].id },
+        data: { note }
+    });
+} else {
+    await prisma.notes.create({
+        data: {
+            note,
+            idUser: Number(idUser),
+            postId: Number(idPost)
+        }
+    });
+}
+
+const actor = await prisma.actor.findUnique({
+    where: { idUser: post.idActor }
+});
+if (actor) {
+    actor.votes = (actor.votes || 0) + note;
+    await prisma.actor.update({
+        where: { id: actor.id },
+        data: { votes: actor.votes }
+    });
+}
+
+res.status(200).json({ message: "Post noté avec succès", status: true });
+} catch (error: any) {
+res.status(500).json({ message: error.message, data: null, status: false });
+}
+}
 
 
 

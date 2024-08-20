@@ -1,5 +1,5 @@
 import  RepostController  from "../controller/RepostController.js";
-import Middleware from "../Middleware/Middelware.js";
+import Middleware from "../Middleware/Middleware.js";
 import { Router } from "express";
 
 const router = Router();

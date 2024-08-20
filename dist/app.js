@@ -7,7 +7,7 @@ import cron from 'node-cron';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import cors from 'cors'; // Importez cors ici
-const swaggerDocument = YAML.load('./docu.yaml');
+const swaggerDocument = YAML.load('./utils/doc.yaml');
 import UserRoute from './route/UserRoute.js';
 import FollowRoute from './route/FollowRoute.js';
 import StoryRoute from './route/StoryRoute.js';

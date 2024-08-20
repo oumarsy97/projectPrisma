@@ -1,250 +1,250 @@
-openapi: 3.0.0
-info:
-  title: Documentation de l'API
-  description: Documentation complète de l'API
-  version: 1.0.0
+# openapi: 3.0.0
+# info:
+#   title: Documentation de l'API
+#   description: Documentation complète de l'API
+#   version: 1.0.0
 
-servers:
-  - url: http://localhost:5000/api/v1
-    description: Serveur de développement
+# servers:
+#   - url: http://localhost:5000/api/v1
+#     description: Serveur de développement
 
-security:
-  - bearerAuth: []
+# security:
+#   - bearerAuth: []
 
-paths:
-  /actors/create:
-    post:
-      summary: Créer un acteur
-      tags:
-        - Actors
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                idUser:
-                  type: integer
-                address:
-                  type: string
-                bio:
-                  type: string
-                role:
-                  type: string
-                  enum: [TAILOR, USER, VENDOR]
-                credits:
-                  type: integer
-                  default: 50
-                vote:
-                  type: integer
-                  default: 0
-      responses:
-        '200':
-          description: Acteur créé avec succès
-        '400':
-          description: Erreur dans la requête
+# paths:
+#   /actors/create:
+#     post:
+#       summary: Créer un acteur
+#       tags:
+#         - Actors
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               type: object
+#               properties:
+#                 idUser:
+#                   type: integer
+#                 address:
+#                   type: string
+#                 bio:
+#                   type: string
+#                 role:
+#                   type: string
+#                   enum: [TAILOR, USER, VENDOR]
+#                 credits:
+#                   type: integer
+#                   default: 50
+#                 vote:
+#                   type: integer
+#                   default: 0
+#       responses:
+#         '200':
+#           description: Acteur créé avec succès
+#         '400':
+#           description: Erreur dans la requête
 
-  /actors/getactors:
-    get:
-      summary: Récupérer tous les acteurs
-      tags:
-        - Actors
-      responses:
-        '200':
-          description: Liste des acteurs
-        '404':
-          description: Acteurs non trouvés
+#   /actors/getactors:
+#     get:
+#       summary: Récupérer tous les acteurs
+#       tags:
+#         - Actors
+#       responses:
+#         '200':
+#           description: Liste des acteurs
+#         '404':
+#           description: Acteurs non trouvés
 
-  /actors/getactor/{id}:
-    get:
-      summary: Récupérer un acteur par ID
-      tags:
-        - Actors
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: ID de l'acteur
-      responses:
-        '200':
-          description: Acteur trouvé
-        '404':
-          description: Acteur non trouvé
+#   /actors/getactor/{id}:
+#     get:
+#       summary: Récupérer un acteur par ID
+#       tags:
+#         - Actors
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: integer
+#           description: ID de l'acteur
+#       responses:
+#         '200':
+#           description: Acteur trouvé
+#         '404':
+#           description: Acteur non trouvé
 
-  /actors/deleteactor/{id}:
-    delete:
-      summary: Supprimer un acteur
-      tags:
-        - Actors
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: ID de l'acteur
-      responses:
-        '200':
-          description: Acteur supprimé
-        '404':
-          description: Acteur non trouvé
+#   /actors/deleteactor/{id}:
+#     delete:
+#       summary: Supprimer un acteur
+#       tags:
+#         - Actors
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: integer
+#           description: ID de l'acteur
+#       responses:
+#         '200':
+#           description: Acteur supprimé
+#         '404':
+#           description: Acteur non trouvé
 
-  /actors/update/{id}:
-    put:
-      summary: Mettre à jour un acteur
-      tags:
-        - Actors
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: ID de l'acteur
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                address:
-                  type: string
-                bio:
-                  type: string
-      responses:
-        '200':
-          description: Acteur mis à jour
-        '400':
-          description: Erreur dans la requête
+#   /actors/update/{id}:
+#     put:
+#       summary: Mettre à jour un acteur
+#       tags:
+#         - Actors
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: integer
+#           description: ID de l'acteur
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               type: object
+#               properties:
+#                 address:
+#                   type: string
+#                 bio:
+#                   type: string
+#       responses:
+#         '200':
+#           description: Acteur mis à jour
+#         '400':
+#           description: Erreur dans la requête
 
-  /reposts/repost/{idPost}:
-    post:
-      summary: Reposter un post
-      tags:
-        - Reposts
-      parameters:
-        - in: path
-          name: idPost
-          required: true
-          schema:
-            type: integer
-          description: ID du post
-      responses:
-        '200':
-          description: Post reposté
-        '400':
-          description: Erreur dans la requête
+#   /reposts/repost/{idPost}:
+#     post:
+#       summary: Reposter un post
+#       tags:
+#         - Reposts
+#       parameters:
+#         - in: path
+#           name: idPost
+#           required: true
+#           schema:
+#             type: integer
+#           description: ID du post
+#       responses:
+#         '200':
+#           description: Post reposté
+#         '400':
+#           description: Erreur dans la requête
 
-  /reposts/repostByPost/{idPost}:
-    get:
-      summary: Récupérer les reposts d'un post
-      tags:
-        - Reposts
-      parameters:
-        - in: path
-          name: idPost
-          required: true
-          schema:
-            type: integer
-          description: ID du post
-      responses:
-        '200':
-          description: Liste des reposts
-        '404':
-          description: Reposts non trouvés
+#   /reposts/repostByPost/{idPost}:
+#     get:
+#       summary: Récupérer les reposts d'un post
+#       tags:
+#         - Reposts
+#       parameters:
+#         - in: path
+#           name: idPost
+#           required: true
+#           schema:
+#             type: integer
+#           description: ID du post
+#       responses:
+#         '200':
+#           description: Liste des reposts
+#         '404':
+#           description: Reposts non trouvés
 
-  /reposts/deleterepost/{idRepost}:
-    delete:
-      summary: Supprimer un repost
-      tags:
-        - Reposts
-      parameters:
-        - in: path
-          name: idRepost
-          required: true
-          schema:
-            type: integer
-          description: ID du repost
-      responses:
-        '200':
-          description: Repost supprimé
-        '404':
-          description: Repost non trouvé
+#   /reposts/deleterepost/{idRepost}:
+#     delete:
+#       summary: Supprimer un repost
+#       tags:
+#         - Reposts
+#       parameters:
+#         - in: path
+#           name: idRepost
+#           required: true
+#           schema:
+#             type: integer
+#           description: ID du repost
+#       responses:
+#         '200':
+#           description: Repost supprimé
+#         '404':
+#           description: Repost non trouvé
 
-  /reposts/Allreposts:
-    get:
-      summary: Récupérer tous les reposts
-      tags:
-        - Reposts
-      responses:
-        '200':
-          description: Liste des reposts
-        '404':
-          description: Reposts non trouvés
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    Actor:
-      type: object
-      properties:
-        id:
-          type: integer
-        idUser:
-          type: integer
-        address:
-          type: string
-        bio:
-          type: string
-        credits:
-          type: integer
-          default: 50
-        vote:
-          type: integer
-          default: 0
-        role:
-          type: string
-          enum:
-            - TAILOR
-            - USER
-            - VENDOR
-          default: TAILOR
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-      required:
-        - id
-        - idUser
-        - address
-        - bio
-        - role
+#   /reposts/Allreposts:
+#     get:
+#       summary: Récupérer tous les reposts
+#       tags:
+#         - Reposts
+#       responses:
+#         '200':
+#           description: Liste des reposts
+#         '404':
+#           description: Reposts non trouvés
+# components:
+#   securitySchemes:
+#     bearerAuth:
+#       type: http
+#       scheme: bearer
+#       bearerFormat: JWT
+#   schemas:
+#     Actor:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         idUser:
+#           type: integer
+#         address:
+#           type: string
+#         bio:
+#           type: string
+#         credits:
+#           type: integer
+#           default: 50
+#         vote:
+#           type: integer
+#           default: 0
+#         role:
+#           type: string
+#           enum:
+#             - TAILOR
+#             - USER
+#             - VENDOR
+#           default: TAILOR
+#         createdAt:
+#           type: string
+#           format: date-time
+#         updatedAt:
+#           type: string
+#           format: date-time
+#       required:
+#         - id
+#         - idUser
+#         - address
+#         - bio
+#         - role
 
-    Repost:
-      type: object
-      properties:
-        id:
-          type: integer
-        idUser:
-          type: integer
-        idPost:
-          type: integer
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-      required:
-        - id
-        - idUser
-        - idPost
+#     Repost:
+#       type: object
+#       properties:
+#         id:
+#           type: integer
+#         idUser:
+#           type: integer
+#         idPost:
+#           type: integer
+#         createdAt:
+#           type: string
+#           format: date-time
+#         updatedAt:
+#           type: string
+#           format: date-time
+#       required:
+#         - id
+#         - idUser
+#         - idPost

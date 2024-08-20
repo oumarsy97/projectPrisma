@@ -12,7 +12,7 @@ import cors from 'cors'; // Importez cors ici
 
 
 
-const swaggerDocument = YAML.load('./docu.yaml');
+ const swaggerDocument = YAML.load('./utils/doc.yaml');
 
 
 import UserRoute from './route/UserRoute.js';
@@ -89,6 +89,7 @@ cron.schedule('* * * * *', () => {
     console.log('Checking for old stories to delete...');
     deleteOldStories();
 });
+
 
 // Démarrez le serveur
 app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);

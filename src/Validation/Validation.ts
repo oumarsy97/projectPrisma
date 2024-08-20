@@ -1,8 +1,7 @@
-import {z} from "zod";
+import { z } from "zod";
 import Utils from "../utils/Utils";
 
 export default class Validation {
-      
     static validateUser = z.object({
         firstname: z.string().min(1, "First name is required"),
         lastname: z.string().min(1, "Last name is required"),
@@ -33,14 +32,6 @@ export default class Validation {
         idProduit: z.number().int().positive("Produit ID must be a positive integer"),
         qte: z.number().int().positive("Quantity must be a positive integer"),
     });
-
-        
-        
-
-
-
-   
-
 
 
 }

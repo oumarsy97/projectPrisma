@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,31 +13,63 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Genre {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  TAILOR
+  USER
+  VENDOR
+}
+
+enum STATUT {
+  PENDING
+  VALIDATED
+}
+enum SIZE {
+  XS
+  S
+  M
+  L
+  XL
+}
+
+enum STATUS {
+  PENDING
+  USED
+}
+
 model User {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   firstname String
   lastname  String
-  email     String     @unique
+  email     String    @unique
   password  String
   phone     String
   photo     String
-  genre     Genre      @default(MALE)
-  role      Role       @default(USER)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  actor     Actor?
-  chats     Chat[]
+  genre     Genre     @default(MALE)
+  role      Role      @default(USER)
+  // favoris Post[] 
+  likes Like[]
+  dislikes Dislike[]
+  comments Comment[]
+ 
+  reposts Repost[]
+  follow Follow[]
+  actor Actor[]
+  ventes Vente[]
   commandes Commande[]
-  comments  Comment[]
-  dislikes  Dislike[]
+  chats     Chat[]
   favoris   Favori[]
-  follow    Follow[]
-  likes     Like[]
-  report    Report[]
-  reposts   Repost[]
-  Share     Share[]    @relation("SharesFromUser")
-  received  Share[]    @relation("SharesToUser")
-  ventes    Vente[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Share    Share[]  @relation("SharesFromUser")
+  received Share[]  @relation("SharesToUser")
+  report   Report[]
 
   @@map("users")
 }
@@ -40,10 +78,10 @@ model Favori {
   id        Int      @id @default(autoincrement())
   idUser    Int
   idPost    Int
+  user      User     @relation(fields: [idUser], references: [id])
+  post      Post     @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [idPost], references: [id])
-  user      User     @relation(fields: [idUser], references: [id])
 
   @@map("favoris")
 }
@@ -51,20 +89,20 @@ model Favori {
 model Actor {
   id        Int       @id @default(autoincrement())
   idUser    Int       @unique
+  user      User      @relation(fields: [idUser], references: [id])
   address   String
   bio       String
+  produits  Produit[]
   credits   Int       @default(50)
   vote      Int       @default(0)
   role      Role      @default(TAILOR)
+  follow    Follow[]
+  ventes    Vente[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  user      User      @relation(fields: [idUser], references: [id])
-  Chat      Chat[]
-  follow    Follow[]
   posts     Post[]
-  produits  Produit[]
   story     Story[]
-  ventes    Vente[]
+  Chat      Chat[]
 
   @@map("actors")
 }
@@ -77,18 +115,18 @@ model Post {
   size        SIZE      @default(M)
   content     Json
   idActor     Int
+  user        Actor     @relation(fields: [idActor], references: [id])
+  likes       Like[]
+  dislikes    Dislike[]
+  comments    Comment[]
+  tags        Tag[]
+  share       Share[]
+  reposts     Repost[]
   vues        Int       @default(0)
+  reports     Report[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  comments    Comment[]
-  dislikes    Dislike[]
   favoris     Favori[]
-  likes       Like[]
-  user        Actor     @relation(fields: [idActor], references: [id])
-  reports     Report[]
-  reposts     Repost[]
-  share       Share[]
-  tags        Tag[]
 
   @@map("posts")
 }
@@ -97,10 +135,10 @@ model Like {
   id        Int      @id @default(autoincrement())
   idUser    Int
   idPost    Int
+  author    User     @relation(fields: [idUser], references: [id])
+  post      Post     @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [idPost], references: [id])
-  author    User     @relation(fields: [idUser], references: [id])
 
   @@map("likes")
 }
@@ -109,10 +147,10 @@ model Dislike {
   id        Int      @id @default(autoincrement())
   idUser    Int
   idPost    Int
+  author    User     @relation(fields: [idUser], references: [id])
+  post      Post     @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [idPost], references: [id])
-  author    User     @relation(fields: [idUser], references: [id])
 
   @@map("dislikes")
 }
@@ -122,12 +160,12 @@ model Comment {
   content   String
   idUser    Int
   idPost    Int?
+  author    User     @relation(fields: [idUser], references: [id])
+  post      Post?    @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   idStory   Int?
-  post      Post?    @relation(fields: [idPost], references: [id])
   story     Story?   @relation(fields: [idStory], references: [id])
-  author    User     @relation(fields: [idUser], references: [id])
 
   @@map("comments")
 }
@@ -136,9 +174,9 @@ model Tag {
   id        Int      @id @default(autoincrement())
   name      String
   idPost    Int
+  post      Post     @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [idPost], references: [id])
 
   @@unique([name, idPost])
   @@map("tags")
@@ -149,11 +187,11 @@ model Share {
   fromUserId Int
   toUserId   Int
   idPost     Int
+  post       Post     @relation(fields: [idPost], references: [id])
+  fromUser   User     @relation("SharesFromUser", fields: [fromUserId], references: [id])
+  toUser     User     @relation("SharesToUser", fields: [toUserId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  fromUser   User     @relation("SharesFromUser", fields: [fromUserId], references: [id])
-  post       Post     @relation(fields: [idPost], references: [id])
-  toUser     User     @relation("SharesToUser", fields: [toUserId], references: [id])
 
   @@map("shares")
 }
@@ -162,10 +200,10 @@ model Repost {
   id        Int      @id @default(autoincrement())
   idUser    Int
   idPost    Int
+  user      User     @relation(fields: [idUser], references: [id])
+  post      Post     @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [idPost], references: [id])
-  user      User     @relation(fields: [idUser], references: [id])
 
   @@map("reposts")
 }
@@ -174,10 +212,10 @@ model Report {
   id        Int      @id @default(autoincrement())
   idUser    Int
   idPost    Int
+  user      User     @relation(fields: [idUser], references: [id])
+  post      Post     @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [idPost], references: [id])
-  user      User     @relation(fields: [idUser], references: [id])
 
   @@map("reports")
 }
@@ -190,10 +228,10 @@ model Produit {
   price       Float
   qte         Int
   idUser      Int
+  vendor      Actor             @relation(fields: [idUser], references: [id])
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   commandes   CommandeProduit[]
-  vendor      Actor             @relation(fields: [idUser], references: [id])
   ventes      Vente[]
 
   @@map("produits")
@@ -203,10 +241,10 @@ model Follow {
   id        Int      @id @default(autoincrement())
   idUser    Int
   idActor   Int
+  user      User     @relation(fields: [idUser], references: [id])
+  actor     Actor    @relation(fields: [idActor], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  actor     Actor    @relation(fields: [idActor], references: [id])
-  user      User     @relation(fields: [idUser], references: [id])
 
   @@unique([idActor, idUser])
   @@map("follows")
@@ -217,26 +255,26 @@ model Vente {
   idActor   Int
   idProduit Int
   idUser    Int
+  user      User     @relation(fields: [idUser], references: [id])
   price     Float
   quantity  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   actor     Actor    @relation(fields: [idActor], references: [id])
   produit   Produit  @relation(fields: [idProduit], references: [id])
-  user      User     @relation(fields: [idUser], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("ventes")
 }
 
 model Commande {
-  id        Int               @id @default(autoincrement())
-  idUser    Int
-  montant   Float
-  statut    STATUT            @default(PENDING)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  produits  CommandeProduit[]
-  user      User              @relation(fields: [idUser], references: [id])
+  id    Int @id @default(autoincrement())
+  idUser Int
+  montant Float
+  statut STATUT @default(PENDING)
+  user  User @relation(fields: [idUser], references: [id])
+  produits  CommandeProduit[] 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("commandes")
 }
@@ -255,17 +293,16 @@ model CommandeProduit {
 }
 
 model Story {
-  id          Int       @id @default(autoincrement())
-  idActory    Int
-  photo       String?
+  id    Int @id @default(autoincrement())
+  idActory Int
+  photo String? // Make this field nullable
   description String
-  title       String
-  vues        Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  comments    Comment[]
-  actor       Actor     @relation(fields: [idActory], references: [id])
-
+  title String
+  vues Int @default(0)
+  comments Comment[]
+  actor Actor @relation(fields: [idActory], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("stories")
 }
 
@@ -287,39 +324,10 @@ model Chat {
   idActor   Int
   message   String
   content   Json
+  user      User     @relation(fields: [idUser], references: [id])
+  actor     Actor    @relation(fields: [idActor], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  actor     Actor    @relation(fields: [idActor], references: [id])
-  user      User     @relation(fields: [idUser], references: [id])
 
   @@map("chats")
-}
-
-enum Genre {
-  MALE
-  FEMALE
-}
-
-enum Role {
-  TAILOR
-  USER
-  VENDOR
-}
-
-enum STATUT {
-  PENDING
-  VALIDATED
-}
-
-enum SIZE {
-  XS
-  S
-  M
-  L
-  XL
-}
-
-enum STATUS {
-  PENDING
-  USED
 }

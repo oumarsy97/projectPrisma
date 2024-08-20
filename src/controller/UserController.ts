@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
-
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import Validation from '../Validation/Validation.js';
@@ -22,10 +21,13 @@ export default class UserController {
                 lastname: req.body.lastname,
                 phone: req.body.phone,
                 photo: req.body.photo,
+                role: req.body.role,
                 email: req.body.email,
                 password: password
             }
         });
+         Messenger.sendMail(user.email, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
+         Messenger.sendSms(user.phone, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
 
         res.json({message: "User created successfully",
             data: user,
@@ -112,6 +114,9 @@ export default class UserController {
 
             }
         });
+        if (!user) {
+            res.json({message : "User not found"});
+        }
         if(user && Utils.comparePassword(req.body.password, user.password)) {
             const token = Utils.generateToken(user.id);
             res.json({message: "User logged in successfully",
@@ -219,7 +224,7 @@ export default class UserController {
             }
              });
     
-            const recu = `Recu Montant : ${newCode.price}<br>Code : ${newCode.code}<br>Credits : ${newCode.credit}<br>Date : ${newCode.createdAt}<br>expire dans 7 jours`;        
+            const recu = `Recu Montant : ${newCode.price} Code : ${newCode.code}Credits : ${newCode.credit} Date : ${newCode.createdAt} expire dans 7 jours`;        
             
             // Envoi du SMS et email via Messenger
             if (user.phone) {
@@ -252,15 +257,90 @@ export default class UserController {
             const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
             if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
             res.status(200).json({ message: "Credits added successfully", data: tailor, status: 200 });
-    
-           
-    
-            
+
         } catch (error: any) {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }
     };
 
+    //become tailor
+    static becomeTailor = async (req: Request, res: Response) => {
+        try {
+            const idUser = req.params.userId;
+            if (!idUser) {
+                return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+            }
+            const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
+            if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
+            if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
+            const newTailor = await prisma.actor.create({
+                data: {
+                    idUser: parseInt(idUser),
+                    credits: 50,
+                    address: req.body.address,
+                    bio: req.body.bio,
+                    role: "TAILOR",
+                    votes: 0
+                },
+                include: {
+                    user: true
+                }
+                
+            })
+           await prisma.user.update({
+                where: { id: parseInt(idUser) },
+                data: {
+                    role: "TAILOR"
+                }
+            })
+
+            Messenger.sendMail(user.email, 'Tailor Digital', `Votre compte est maintenant un Tailor vous avez 50 credits`);
+            Messenger.sendSms(user.phone, 'Tailor Digital', `Votre compte est maintenant un Tailor vous avez 50 credits`);
+            res.status(200).json({ message: "Tailor created successfully", data: newTailor, status: 200 });
+        } catch (error: any) {
+            res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
+        }
+    };
+    
+    //become vendor
+    static becomeVendor = async (req: Request, res: Response) => {
+        try {
+            const idUser = req.params.userId;
+            if (!idUser) {  
+                return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+            }
+            const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
+            if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
+            const vendor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
+            if (!vendor) return res.status(404).json({ message: "Vendor not found", data: null, status: 404 });
+            const newVendor = await prisma.actor.create({
+                data: {
+                    idUser: parseInt(idUser),
+                    address: req.body.address,
+                    bio: req.body.bio,
+                    role: "VENDOR",
+                    votes: 0
+                },
+                include: {
+                    user: true
+                }
+                
+            })
+            const updateUser = await prisma.user.update({
+                where: { id: parseInt(idUser) },
+                data: {
+                    role: "VENDOR"
+                }
+            })
+            res.status(200).json({ message: "Vendor created successfully", data: newVendor, status: 200 });
+        } catch (error: any) {
+            res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
+        }
+    }
 
 
 }
+
+
+

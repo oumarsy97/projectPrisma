@@ -4,7 +4,7 @@ import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
 
-export default class ActorController{
+export default class ActorController{ 
 
     //create a new actor
     static createActor = async (req: Request, res: Response) => {
@@ -49,7 +49,7 @@ export default class ActorController{
                     bio:req.body.bio,
                     role:req.body.role,
                     credits:50,
-                    vote:0
+                    votes:0
                 }
             });
             res.json({message: `${role} created successfully`,
@@ -61,7 +61,7 @@ export default class ActorController{
             res.status(500).json({
                 message: "Internal server error",
                 error: err.message,
-            });
+            }); 
         }
     
     }
