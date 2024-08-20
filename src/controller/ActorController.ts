@@ -8,6 +8,7 @@ export default class ActorController{
 
     //create a new actor
     static createActor = async (req: Request, res: Response) => {
+        try{
         const {role} = req.body
         if (role !=="TAILOR" && role !=="VENDOR") {
             return res.status(400).json({
@@ -15,29 +16,56 @@ export default class ActorController{
                 status: 400
             });
         }
-        try {
+        const user = await prisma.user.findUnique({
+            where: {
+                email: req.body.email
+            }
+        })
+
+        if (user) {
+            return res.status(400).json({
+                message: "User already exists",
+                status: 400
+            });
+        };
+
+        const password =  Utils.hashPassword(req.body.password);
+        const newUser = await prisma.user.create({
+            data: {
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                phone: req.body.phone,
+                photo: req.body.photo,
+                email: req.body.email,
+                password: password,
+                role: req.body.role? req.body.role:"TAILOR"
+            }
+        })
+
             const actor = await prisma.actor.create({
                 data: {
-                    idUser:req.body.idUser,
+                    idUser:newUser.id,
                     address:req.body.address,
                     bio:req.body.bio,
                     role:req.body.role,
-                    credits:req.body.credits,
-                    vote:req.body.vote
+                    credits:50,
+                    vote:0
                 }
             });
             res.json({message: `${role} created successfully`,
                 data: actor,
                 status: 200
             });
-        } catch (error: any) {
+
+        } catch (err: any) {
             res.status(500).json({
                 message: "Internal server error",
-                error: error.message,
+                error: err.message,
             });
         }
+    
     }
-
+    //get all actors
     static getActors = async (req: Request, res: Response) => {
         const actors = await prisma.actor.findMany();
         res.json({message: "Actors fetched successfully",
@@ -131,7 +159,5 @@ export default class ActorController{
  
     }
         
-    
 
-    
 }
