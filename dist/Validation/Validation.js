@@ -22,7 +22,7 @@ export default class Validation {
     });
     static validateCommande = z.object({
         idUser: z.number().min(1, "User ID is required"),
-    }); 
+    });  
     static validateCommandeProduit = z.object({
         idCommande: z.number().int().positive("Commande ID must be a positive integer"),
         idProduit: z.number().int().positive("Produit ID must be a positive integer"),
