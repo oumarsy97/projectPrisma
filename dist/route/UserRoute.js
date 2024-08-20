@@ -1,6 +1,6 @@
 import UserController from "../controller/UserController.js";
 import { Router } from "express";
-import Middleware from "../Middleware/Middelware.js";
+import Middleware from "../Middleware/Middleware.js";
 const router = Router();
 router.get("/monprofile", Middleware.auth, UserController.getUser);
 router.post("/login", UserController.login);

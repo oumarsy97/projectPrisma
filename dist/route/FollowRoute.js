@@ -1,5 +1,5 @@
 import FollowController from "../controller/FollowController.js";
-import Middleware from "../Middleware/Middelware.js";
+import Middleware from "../Middleware/Middleware.js";
 import express from "express";
 const router = express.Router();
 router.post("/follow", Middleware.auth, FollowController.follow);

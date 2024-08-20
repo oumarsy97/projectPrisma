@@ -21,6 +21,7 @@ export default class UserController {
                 lastname: req.body.lastname,
                 phone: req.body.phone,
                 photo: req.body.photo,
+                role: req.body.role,
                 email: req.body.email,
                 password: password
             }
@@ -113,6 +114,9 @@ export default class UserController {
                 email: req.body.email
             }
         });
+        if (!user) {
+            res.json({message : "User not found"});
+        }
         if(user && Utils.comparePassword(req.body.password, user.password)) {
             const token = Utils.generateToken(user.id);
             res.json({message: "User logged in successfully",
@@ -276,7 +280,8 @@ export default class UserController {
                     credits: 50,
                     address: req.body.address,
                     bio: req.body.bio,
-                    role: "TAILOR"
+                    role: "TAILOR",
+                    votes: 0
                 },
                 include: {
                     user: true
@@ -302,7 +307,7 @@ export default class UserController {
     static becomeVendor = async (req: Request, res: Response) => {
         try {
             const idUser = req.params.userId;
-            if (!idUser) {
+            if (!idUser) {  
                 return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
             }
             const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
@@ -314,7 +319,8 @@ export default class UserController {
                     idUser: parseInt(idUser),
                     address: req.body.address,
                     bio: req.body.bio,
-                    role: "VENDOR"
+                    role: "VENDOR",
+                    votes: 0
                 },
                 include: {
                     user: true

@@ -1,7 +1,7 @@
 // StoryRoute.ts
 import express from 'express';
 import StoryController from '../controller/StoryController.js';
-import Middleware from '../Middleware/Middelware.js';
+import Middleware from '../Middleware/Middleware.js';
 import upload from '../config/multerConfig.js';
 const router = express.Router();
 router.delete('/delete/:idStory', Middleware.auth, Middleware.isTailor, StoryController.deleteStory);
