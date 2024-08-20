@@ -12,9 +12,7 @@ export default class Validation {
         email: z.string().email("Invalid email address"),
         password: z.string().min(6, "Password must be at least 6 characters long"),
     });
-    
-   
-    
+
     static validateProduit = z.object({
         libelle: z.string().min(1, "Libelle is required"),
         description: z.string().optional(), // Champ optionnel
@@ -24,7 +22,7 @@ export default class Validation {
     });
     static validateCommande = z.object({
         idUser: z.number().min(1, "User ID is required"),
-    });
+    }); 
     static validateCommandeProduit = z.object({
         idCommande: z.number().int().positive("Commande ID must be a positive integer"),
         idProduit: z.number().int().positive("Produit ID must be a positive integer"),
