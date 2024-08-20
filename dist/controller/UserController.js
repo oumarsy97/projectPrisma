@@ -260,7 +260,8 @@ export default class UserController {
                     credits: 50,
                     address: req.body.address,
                     bio: req.body.bio,
-                    role: "TAILOR"
+                    role: "TAILOR",
+                    votes: 0
                 },
                 include: {
                     user: true
@@ -298,7 +299,8 @@ export default class UserController {
                     idUser: parseInt(idUser),
                     address: req.body.address,
                     bio: req.body.bio,
-                    role: "VENDOR"
+                    role: "VENDOR",
+                    votes: 0
                 },
                 include: {
                     user: true
