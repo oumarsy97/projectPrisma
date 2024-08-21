@@ -1,772 +1,157 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
-export default class ShareController {
-    //share
-    static createShare = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const fromId = req.body.fromId;
-            const idPost = req.body.idPost;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(fromId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(idPost)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const share = await prisma.share.create({
-                data: {
-                    fromUserId: Number(userId),
-                    toUserId: Number(fromId),
-                    idPost: Number(idPost),
-                },
-            });
-            res.json(share);
-        }
-        catch (error) {
-            res.status(500).json({
-                message: "Internal server error",
-                error: error.message,
-            });
-        }
-    };
-    static getSharedMe = async (req, res) => {
-        const userId = req.params.userId;
-        try {
-            const shares = await prisma.share.findMany({
-                where: {
-                    fromUserId: Number(userId)
-                }
-            });
-            res.json({ message: "Shares fetched successfully",
-                data: shares,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({
-                message: "Internal server error",
-                error: error.message,
-            });
-        }
-    };
-    static getSharesToMe = async (req, res) => {
-        const userId = req.params.userId;
-        try {
-            const shares = await prisma.share.findMany({
-                where: {
-                    toUserId: Number(userId)
-                }
-            });
-            res.json({ message: "Shares fetched successfully",
-                data: shares,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({
-                message: "Internal server error",
-                error: error.message,
-            });
-        }
-    };
-    static deleteShare = async (req, res) => {
-        const shareId = req.params.shareId;
-        try {
-            const share = await prisma.share.delete({
-                where: {
-                    id: Number(shareId)
-                }
-            });
-            res.json({ message: "Share deleted successfully",
-                data: share,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({
-                message: "Internal server error",
-                error: error.message,
-            });
-        }
-    };
-    //faire report d'un post
-    static createReport = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.params.postId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            //verifier si l'utilisateur a deja signale
-            const signale = await prisma.report.findMany({
-                where: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                }
-            });
-            if (signale.length > 0) {
-                //remover le signale
-                await prisma.report.deleteMany({
-                    where: {
-                        idUser: Number(userId),
-                        idPost: Number(postId),
-                    }
-                });
-                return res.status(200).json({ message: "Report removed successfully",
-                    status: 200
-                });
-            }
-            const newreport = await prisma.report.create({
-                data: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                },
-            });
-            res.json({ message: "Report created successfully",
-                data: newreport,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //like
-    static likePost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.body.postId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const like = await prisma.like.findMany({
-                where: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                }
-            });
-            if (like.length > 0) {
-                //remover le signale
-                await prisma.like.deleteMany({
-                    where: {
-                        idUser: Number(userId),
-                        idPost: Number(postId),
-                    }
-                });
-                return res.status(200).json({ message: "Like removed successfully",
-                    status: 200
-                });
-            }
-            const newlike = await prisma.like.create({
-                data: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                },
-            });
-            res.json({ message: "Like created successfully",
-                data: newlike,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //dislike
-    static dislikePost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.body.postId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const dislike = await prisma.dislike.findMany({
-                where: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                }
-            });
-            if (dislike.length > 0) {
-                //remover le signale
-                await prisma.dislike.deleteMany({
-                    where: {
-                        idUser: Number(userId),
-                        idPost: Number(postId),
-                    }
-                });
-                return res.status(200).json({ message: "Dislike removed successfully",
-                    status: 200
-                });
-            }
-            const newdislike = await prisma.dislike.create({
-                data: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                },
-            });
-            res.json({ message: "Dislike created successfully",
-                data: newdislike,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //comment 
-    static commentPost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.params.postId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const newComment = await prisma.comment.create({
-                data: {
-                    idUser: Number(userId),
-                    idPost: Number(postId),
-                    content: req.body.content
-                },
-            });
-            res.json({ message: "Comment created successfully",
-                data: newComment,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static deleteComment = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const commentId = req.params.commentId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const comment = await prisma.comment.findUnique({
-                where: {
-                    id: Number(commentId)
-                }
-            });
-            if (comment === null) {
-                return res.status(400).json({ message: "Comment not found" });
-            }
-            await prisma.comment.delete({
-                where: {
-                    id: Number(commentId)
-                }
-            });
-            res.json({ message: "Comment deleted successfully",
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static updateComment = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const commentId = req.params.commentId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const comment = await prisma.comment.findUnique({
-                where: {
-                    id: Number(commentId)
-                }
-            });
-            if (comment === null) {
-                return res.status(400).json({ message: "Comment not found" });
-            }
-            const newComment = await prisma.comment.update({
-                where: {
-                    id: Number(commentId)
-                },
-                data: {
-                    content: req.body.content
-                },
-            });
-            res.json({ message: "Comment updated successfully",
-                data: newComment,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //les commentaires d'un post
-    static getComments = async (req, res) => {
-        try {
-            const postId = req.params.postId;
-            const comments = await prisma.comment.findMany({
-                where: {
-                    idPost: Number(postId),
-                }
-            });
-            res.json({ message: "Comments retrieved successfully",
-                data: comments,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //post
-    static createPost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const actor = await prisma.actor.findUnique({
-                where: {
-                    idUser: Number(userId)
-                }
-            });
-            if (actor === null) {
-                return res.status(400).json({ message: "Actor not found" });
-            }
-            const newPost = await prisma.post.create({
-                data: {
-                    idActor: Number(actor.id),
-                    title: req.body.title,
-                    content: req.body.content,
-                    category: req.body.category,
-                    description: req.body.description,
-                },
-            });
-            //  console.log(actor);
-            res.json({ message: "Post created successfully",
-                data: newPost,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server errors" });
-        }
-    };
-    //supprimer un post
-    static deletePost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.params.postId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            await prisma.post.delete({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            res.json({ message: "Post deleted successfully",
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //mypost
-    static mypost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const actor = await prisma.actor.findUnique({
-                where: {
-                    idUser: Number(userId)
-                }
-            });
-            if (actor === null) {
-                return res.status(400).json({ message: "Actor not found" });
-            }
-            const posts = await prisma.post.findMany({
-                where: {
-                    idActor: Number(actor?.id)
-                }
-            });
-            res.json({ message: "Posts retrieved successfully",
-                data: posts,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static allposts = async (req, res) => {
-        try {
-            const posts = await prisma.post.findMany();
-            res.json({ message: "Posts retrieved successfully",
-                data: posts,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static getPostActor = async (req, res) => {
-        try {
-            const idActor = req.query.actor;
-            const actor = await prisma.actor.findUnique({
-                where: {
-                    id: Number(idActor)
-                }
-            });
-            if (actor === null) {
-                return res.status(400).json({ message: "actor not found" });
-            }
-            const posts = await prisma.post.findMany({
-                where: {
-                    idActor: Number(actor?.id)
-                }
-            });
-            res.json({ message: "Posts retrieved successfully",
-                data: posts,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static updatepost = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.params.postId;
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (user === null) {
-                return res.status(400).json({ message: "User not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const newPost = await prisma.post.update({
-                where: {
-                    id: Number(postId),
-                },
-                data: {
-                    title: req.body.title,
-                    content: req.body.content,
-                    category: req.body.image,
-                    description: req.body.description,
-                },
-            });
-            res.json({ message: "Post updated successfully",
-                data: newPost,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static createtag = async (req, res) => {
-        try {
-            const postId = req.params.postId;
-            const userId = req.params.userId;
-            const actor = await prisma.actor.findUnique({
-                where: {
-                    idUser: Number(userId)
-                }
-            });
-            if (actor === null) {
-                return res.status(400).json({ message: "Actor not found" });
-            }
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            // //verifier si cest son post
-            if (actor?.id !== post?.idActor) {
-                return res.status(400).json({ message: "Not your post" });
-            }
-            const tag = await prisma.tag.create({
-                data: {
-                    name: req.body.name,
-                    idPost: Number(postId),
-                }
-            });
-            res.json({ message: "Tag created successfully",
-                data: tag,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static updatetag = async (req, res) => {
-        try {
-            const postId = req.params.postId;
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const tag = await prisma.tag.update({
-                where: {
-                    id: Number(req.body.id)
-                },
-                data: {
-                    name: req.body.name,
-                    idPost: Number(req.body.idPost),
-                }
-            });
-            res.json({ message: "Tag updated successfully",
-                data: tag,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static gettag = async (req, res) => {
-        try {
-            const postId = req.params.postId;
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const tag = await prisma.tag.findMany();
-            res.json({ message: "Tag retrieved successfully",
-                data: tag,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static deletetag = async (req, res) => {
-        try {
-            const tagId = req.params.tagId;
-            const tag = await prisma.tag.delete({
-                where: {
-                    id: Number(tagId)
-                }
-            });
-            res.json({ message: "Tag deleted successfully",
-                data: tag,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    static gettagbypost = async (req, res) => {
-        try {
-            const postId = req.params.postId;
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const tag = await prisma.tag.findMany({
-                where: {
-                    idPost: Number(postId)
-                }
-            });
-            res.json({ message: "Tag retrieved successfully",
-                data: tag,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //add favoris
-    static addfavoris = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const postId = req.params.postId;
-            const post = await prisma.post.findUnique({
-                where: {
-                    id: Number(postId)
-                }
-            });
-            if (post === null) {
-                return res.status(400).json({ message: "Post not found" });
-            }
-            const actor = await prisma.user.findUnique({
-                where: {
-                    id: Number(userId)
-                }
-            });
-            if (actor === null) {
-                return res.status(400).json({ message: "Actor not found" });
-            }
-            if (actor?.id === post?.idActor) {
-                return res.status(400).json({ message: "this is your post" });
-            }
-            const fv = await prisma.favori.findMany({
-                where: {
-                    idUser: Number(userId),
-                    idPost: Number(postId)
-                }
-            });
-            if (fv.length > 0) {
-                const fvs = await prisma.favori.deleteMany({
-                    where: {
-                        idUser: Number(userId),
-                        idPost: Number(postId)
-                    }
-                });
-                res.json({ message: "Favori deleted successfully",
-                    data: fvs,
-                    status: 200
-                });
-            }
-            const favor = await prisma.favori.create({
-                data: {
-                    idUser: Number(userId),
-                    idPost: Number(postId)
-                }
-            });
-            res.json({ message: "Favori created successfully",
-                data: favor,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-    //my favoris
-    static getfavoris = async (req, res) => {
-        try {
-            const userId = req.params.userId;
-            const favoris = await prisma.favori.findMany({
-                where: {
-                    idUser: Number(userId)
-                }
-            });
-            res.json({ message: "Favoris retrieved successfully",
-                data: favoris,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({ message: "Internal server error" });
-        }
-    };
-}
+"use strict";
+// import { Request, Response } from 'express';
+// import { PrismaClient, Chat, User } from '@prisma/client';
+// const prisma = new PrismaClient();
+// class ChatController {
+//   static async createChatAndSendMessage(req: Request, res: Response) {
+//     const { recipientId } = req.params;
+//     const { text } = req.body;
+//     const initiatorId = req.userId;
+//     try {
+//       // Vérifiez si les utilisateurs existent
+//       const initiator = await prisma.user.findUnique({ where: { id: initiatorId } });
+//       const recipient = await prisma.user.findUnique({ where: { id: Number(recipientId) } });
+//       if (!initiator || !recipient) {
+//         return res.status(404).json({ message: 'Utilisateur non trouvé', status: false });
+//       }
+//       // Trouvez une discussion existante entre l'initiateur et le destinataire
+//       let chat = await prisma.chat.findFirst({
+//         where: {
+//           OR: [
+//             { initiator: { id: initiatorId }, recipient: { id: Number(recipientId) } },
+//             { initiator: { id: Number(recipientId) }, recipient: { id: initiatorId } },
+//           ],
+//         },
+//       });
+//       // Si aucune discussion n'existe, créez-en une nouvelle
+//       if (!chat) {
+//         chat = await prisma.chat.create({
+//           data: {
+//             initiator: { connect: { id: initiatorId } },
+//             recipient: { connect: { id: Number(recipientId) } },
+//             messages: { create: { sender: { connect: { id: initiatorId } }, text } },
+//           },
+//           include: { messages: true },
+//         });
+//       } else {
+//         const newMessage = await prisma.message.create({
+//           data: {
+//             sender: { connect: { id: initiatorId } },
+//             text,
+//             chat: { connect: { id: chat.id } },
+//           },
+//         });
+//         chat.messages.push(newMessage);
+//         await chat.save();
+//       }
+//       return res.status(200).json({
+//         message: 'Message envoyé avec succès',
+//         data: { chat, message: chat.messages[chat.messages.length - 1] },
+//         status: true,
+//       });
+//     } catch (error) {
+//       return res.status(400).json({ message: (error as Error).message, data: null, status: false });
+//     }
+//   }
+//   static async getChatMessages(req: Request<{ chatId: string }>, res: Response) {
+//     const { chatId } = req.params;
+//     try {
+//       const chat = await prisma.chat.findUnique({
+//         where: { id: Number(chatId) },
+//         include: { messages: { include: { sender: { select: { firstname: true, lastname: true } } } } },
+//       });
+//       if (!chat) {
+//         return res.status(404).json({ message: 'Discussion non trouvée', status: false });
+//       }
+//       return res.status(200).json({
+//         message: 'Messages récupérés avec succès',
+//         data: chat.messages,
+//         status: true,
+//       });
+//     } catch (error) {
+//       return res.status(400).json({ message: (error as Error).message, data: null, status: false });
+//     }
+//   }
+//   static async markMessageAsSeen(req: Request<{}, {}, { chatId: string; messageId: string }>, res: Response) {
+//     const { chatId, messageId } = req.body;
+//     try {
+//       const chat = await prisma.chat.findUnique({
+//         where: { id: Number(chatId) },
+//         include: { messages: { where: { id: Number(messageId) } } },
+//       });
+//       if (!chat || chat.messages.length === 0) {
+//         return res.status(404).json({ message: 'Discussion ou message non trouvé', status: false });
+//       }
+//       const message = chat.messages[0];
+//       message.seen = true;
+//       await prisma.message.update({
+//         where: { id: message.id },
+//         data: { seen: true },
+//       });
+//       return res.status(200).json({ message: 'Message marqué comme lu', status: true });
+//     } catch (error) {
+//       return res.status(400).json({ message: (error as Error).message, data: null, status: false });
+//     }
+//   }
+//   static async updateMessage(req: Request<{ chatId: string; messageId: string }, {}, { text: string }>, res: Response) {
+//     const { chatId, messageId } = req.params;
+//     const { text } = req.body;
+//     const userId = req.userId;
+//     try {
+//       const chat = await prisma.chat.findUnique({
+//         where: { id: Number(chatId) },
+//         include: { messages: { where: { id: Number(messageId) } } },
+//       });
+//       if (!chat || chat.messages.length === 0) {
+//         return res.status(404).json({ message: 'Discussion ou message non trouvé', status: false });
+//       }
+//       const updatedMessage = chat.messages[0];
+//       // Vérifiez que l'utilisateur est l'expéditeur du message et que le message a été envoyé dans les 2 dernières heures
+//       if (
+//         updatedMessage.senderId !== userId ||
+//         Date.now() - new Date(updatedMessage.createdAt).getTime() > 2 * 60 * 60 * 1000
+//       ) {
+//         return res.status(403).json({ message: 'Modification non autorisée', status: false });
+//       }
+//       await prisma.message.update({
+//         where: { id: updatedMessage.id },
+//         data: { text },
+//       });
+//       return res.status(200).json({
+//         message: 'Message mis à jour avec succès',
+//         data: updatedMessage,
+//         status: true,
+//       });
+//     } catch (error) {
+//       return res.status(400).json({ message: (error as Error).message, data: null, status: false });
+//     }
+//   }
+//   static async deleteMessage(req: Request<{ chatId: string; messageId: string }>, res: Response) {
+//     const { chatId, messageId } = req.params;
+//     const userId = req.userId;
+//     try {
+//       const chat = await prisma.chat.findUnique({
+//         where: { id: Number(chatId) },
+//         include: { messages: { where: { id: Number(messageId) } } },
+//       });
+//       if (!chat || chat.messages.length === 0) {
+//         return res.status(404).json({ message: 'Discussion ou message non trouvé', status: false });
+//       }
+//       const messageToDelete = chat.messages[0];
+//       // Vérifiez que l'utilisateur est l'expéditeur du message et que le message a été envoyé dans les 2 dernières heures
+//       if (
+//         messageToDelete.senderId !== userId ||
+//         Date.now() - new Date(messageToDelete.createdAt).getTime() > 2 * 60 * 60 * 1000
+//       ) {
+//         return res.status(403).json({ message: 'Suppression non autorisée', status: false });
+//       }
+//       await prisma.message.delete({
+//         where: { id: messageToDelete.id },
+//       });
+//       return res.status(200).json({ message: 'Message supprimé avec succès', status: true });
+//     } catch (error) {
+//       return res.status(400).json({ message: (error as Error).message, data: null, status: false });
+//     }
+//   }
+// }
+// export default ChatController;

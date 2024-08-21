@@ -14,8 +14,8 @@ export default class Validation {
     });
     static validateProduit = z.object({
         libelle: z.string().min(1, "Libelle is required"),
-        description: z.string().optional(), // Champ optionnel
-        image: z.string().url("Image must be a valid URL"), // Validation d'URL pour l'image
+        description: z.string().optional(),
+        image: z.string().url("Image must be a valid URL"),
         price: z.number().positive("Price must be a positive number"),
         qte: z.number().int().positive("Quantity must be a positive integer")
     });

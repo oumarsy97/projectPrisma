@@ -309,11 +309,23 @@ model Chat {
   id    Int @id @default(autoincrement())
   idUser Int
   idActor Int
-  message String
+  messages Message[]
   content Json
   user  User @relation(fields: [idUser], references: [id])
   actor  Actor @relation(fields: [idActor], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("chats")
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  sender Int
+  content Json
+  text String
+  seen Boolean @default(false)
+  chatId Int
+  chat Chat @relation(fields: [chatId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

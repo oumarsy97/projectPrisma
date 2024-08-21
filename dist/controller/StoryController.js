@@ -25,7 +25,7 @@ export default class StoryController {
                 data: {
                     title,
                     description,
-                    photo, // This field is always a string
+                    photo,
                     idActory,
                 },
             });
