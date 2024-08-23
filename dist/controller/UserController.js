@@ -5,12 +5,17 @@ import Validation from '../Validation/Validation.js';
 import Messenger from '../utils/Messenger.js';
 export default class UserController {
     static createUser = async (req, res) => {
-        const password = Utils.hashPassword(req.body.password);
         const validationResult = Validation.validateUser.safeParse(req.body);
         if (!validationResult.success) {
             return res.status(400).json({ message: validationResult.error.message, status: 400 });
         }
         try {
+            const passwords = req.body.password;
+            const confirmPassword = req.body.confirmPassword;
+            if (passwords !== confirmPassword) {
+                return res.status(400).json({ message: "Passwords do not match", status: 400 });
+            }
+            const password = Utils.hashPassword(req.body.password);
             const user = await prisma.user.create({
                 data: {
                     firstname: req.body.firstname,

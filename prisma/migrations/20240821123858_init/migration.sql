@@ -49,7 +49,6 @@ CREATE TABLE "actors" (
     "bio" TEXT NOT NULL,
     "votes" INTEGER NOT NULL,
     "credits" INTEGER NOT NULL DEFAULT 50,
-    "vote" INTEGER NOT NULL DEFAULT 0,
     "role" "Role" NOT NULL DEFAULT 'TAILOR',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -78,7 +77,8 @@ CREATE TABLE "notes" (
     "id" SERIAL NOT NULL,
     "note" INTEGER NOT NULL,
     "idUser" INTEGER NOT NULL,
-    "postId" INTEGER NOT NULL,
+    "postId" INTEGER,
+    "produitId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -195,14 +195,24 @@ CREATE TABLE "follows" (
 CREATE TABLE "ventes" (
     "id" SERIAL NOT NULL,
     "idActor" INTEGER NOT NULL,
-    "idProduit" INTEGER NOT NULL,
     "idUser" INTEGER NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "quantity" INTEGER NOT NULL,
+    "totalAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ventes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "vente_details" (
+    "id" SERIAL NOT NULL,
+    "idVente" INTEGER NOT NULL,
+    "idProduit" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "montant" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "vente_details_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -299,7 +309,10 @@ ALTER TABLE "posts" ADD CONSTRAINT "posts_idActor_fkey" FOREIGN KEY ("idActor") 
 ALTER TABLE "notes" ADD CONSTRAINT "notes_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "notes" ADD CONSTRAINT "notes_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "notes" ADD CONSTRAINT "notes_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "notes" ADD CONSTRAINT "notes_produitId_fkey" FOREIGN KEY ("produitId") REFERENCES "produits"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "likes" ADD CONSTRAINT "likes_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -362,7 +375,10 @@ ALTER TABLE "ventes" ADD CONSTRAINT "ventes_idUser_fkey" FOREIGN KEY ("idUser") 
 ALTER TABLE "ventes" ADD CONSTRAINT "ventes_idActor_fkey" FOREIGN KEY ("idActor") REFERENCES "actors"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ventes" ADD CONSTRAINT "ventes_idProduit_fkey" FOREIGN KEY ("idProduit") REFERENCES "produits"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "vente_details" ADD CONSTRAINT "vente_details_idProduit_fkey" FOREIGN KEY ("idProduit") REFERENCES "produits"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "vente_details" ADD CONSTRAINT "vente_details_idVente_fkey" FOREIGN KEY ("idVente") REFERENCES "ventes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "commandes" ADD CONSTRAINT "commandes_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
