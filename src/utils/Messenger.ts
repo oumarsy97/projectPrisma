@@ -29,35 +29,35 @@ export default class Messenger {
         }
     }
 
-    static async sendSms(destination: string, name: string, message: string): Promise<void> {
-        const myHeaders: { [key: string]: string } = {
-            "Authorization": "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa",
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        };
-
-        const raw = JSON.stringify({
-            "messages": [
-                {
-                    "destinations": [{"to": "781807229"}],
-                    "from": "Tailor Digital",
-                    "text": message
-                }
-            ]
-        });
-
-        try {
-            const response = await fetch("https://w1qlj8.api.infobip.com/sms/2/text/advanced", {
-                method: "POST",
-                headers: myHeaders,
-                body: raw,
-            });
-            const result = await response.text();
-            console.log(result);
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    static sendSms = async (destination, name, message) => {
+   
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa");
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Accept", "application/json");
+    
+    const raw = JSON.stringify({
+        "messages": [
+            {
+                "destinations": [{"to":"221781807229"}],
+                "from": "Tailor Digital",
+                "text": message
+            }
+        ]
+    });
+    
+    const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+    };
+    
+    fetch("https://w1qlj8.api.infobip.com/sms/2/text/advanced", requestOptions)
+        .then((response) => response.text())
+        .then((result) => console.log(result))
+        .catch((error) => console.error(error));
+}
 
     static async sendWhatsapp(destination: string, name: string, message: string): Promise<void> {
         const myHeaders: { [key: string]: string } = {
