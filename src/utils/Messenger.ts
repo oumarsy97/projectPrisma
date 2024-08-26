@@ -28,36 +28,40 @@ export default class Messenger {
             return { message: `Erreur lors de l'envoi de l'e-mail: ${(error as Error).message}`, status: 500 };
         }
     }
+class SmsService {
+    static sendSms = async (destination: string, name: string, message: string): Promise<void> => {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa");
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Accept", "application/json");
 
-    static sendSms = async (destination, name, message) => {
-   
-    const myHeaders = new Headers();
-    myHeaders.append("Authorization", "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa");
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Accept", "application/json");
-    
-    const raw = JSON.stringify({
-        "messages": [
-            {
-                "destinations": [{"to":"221781807229"}],
-                "from": "Tailor Digital",
-                "text": message
-            }
-        ]
-    });
-    
-    const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
+        const raw = JSON.stringify({
+            "messages": [
+                {
+                    "destinations": [{"to": "781807229"}],
+                    "from": name,
+                    "text": message
+                }
+            ]
+        });
+
+        const requestOptions: RequestInit = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
+
+        try {
+            const response = await fetch("https://w1qlj8.api.infobip.com/sms/2/text/advanced", requestOptions);
+            const result = await response.text();
+            console.log(result);
+        } catch (error) {
+            console.error(error);
+        }
     };
-    
-    fetch("https://w1qlj8.api.infobip.com/sms/2/text/advanced", requestOptions)
-        .then((response) => response.text())
-        .then((result) => console.log(result))
-        .catch((error) => console.error(error));
 }
+
 
     static async sendWhatsapp(destination: string, name: string, message: string): Promise<void> {
         const myHeaders: { [key: string]: string } = {
