@@ -18,6 +18,7 @@ import ActorRoute from './route/ActorRoute.js';
 import RepostRoute from './route/RepostRoute.js';
 import VenteRoute from './route/VenteRoute.js';
 import ChatRoute from './route/ChatRoute.js';
+import ProduitRoute from './route/ProduitRoute.js';
 
 
 
@@ -43,6 +44,7 @@ app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);
 app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/ventes`, VenteRoute);
 app.use(`${process.env.BASE_URL}/chat`, ChatRoute);
+app.use(`${process.env.BASE_URL}/produits`, ProduitRoute);
 
 
 
