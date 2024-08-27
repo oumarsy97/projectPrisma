@@ -16,6 +16,7 @@ import StoryRoute from './route/StoryRoute.js';
 import PostRoute from './route/PostRoute.js';
 import ActorRoute from './route/ActorRoute.js';
 import RepostRoute from './route/RepostRoute.js';
+import ChatRoute from './route/ChatRoute.js';
 dotenv.config();
 
 
@@ -51,6 +52,7 @@ app.use(`${process.env.BASE_URL}/story`, StoryRoute);
 app.use(`${process.env.BASE_URL}/users`, UserRoute);
 app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/posts`, PostRoute);
+app.use(`${process.env.BASE_URL}/chat`, ChatRoute);
 
 const prisma = new PrismaClient();
 
@@ -87,6 +89,7 @@ app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);
 app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/follow`, FollowRoute);  // Add Follow routes
 app.use(`${process.env.BASE_URL}/story`, StoryRoute);    // Add Story routes
+app.use(`${process.env.BASE_URL}/chat`, ChatRoute);
 
 // Start the server
 app.listen(Number(process.env.PORT), () => {

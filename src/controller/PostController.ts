@@ -1,7 +1,7 @@
-// import { Request, Response } from 'express';
-// import { PrismaClient, Chat, User } from '@prisma/client';
+import { Request, Response } from 'express';
+import { PrismaClient, Chat, User } from '@prisma/client';
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 export default class ShareController {
 //share
@@ -875,10 +875,10 @@ const actor = await prisma.actor.findUnique({
     where: { idUser: post.idActor }
 });
 if (actor) {
-    actor.votes = (actor.votes || 0) + note;
+    actor.vote = (actor.vote || 0) + note;
     await prisma.actor.update({
         where: { id: actor.id },
-        data: { votes: actor.votes }
+        data: { vote: actor.vote }
     });
 }
 

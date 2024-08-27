@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import Utils from '../utils/Utils.js';
-const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import Validation from '../Validation/Validation.js';
 import Messenger from '../utils/Messenger.js'; 
@@ -282,7 +281,7 @@ export default class UserController {
                     address: req.body.address,
                     bio: req.body.bio,
                     role: "TAILOR",
-                    votes: 0
+                    vote: 0
                 },
                 include: {
                     user: true
@@ -321,7 +320,7 @@ export default class UserController {
                     address: req.body.address,
                     bio: req.body.bio,
                     role: "VENDOR",
-                    votes: 0
+                    vote: 0
                 },
                 include: {
                     user: true

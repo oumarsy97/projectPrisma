@@ -381,6 +381,229 @@ paths:
           description: Commandes sélectionnees avec succes
         '500':
           description: Erreur interne du serveur
+
+  /create:
+    post:
+      summary: Créer un chat et envoyer un message
+      description: Crée une nouvelle discussion entre deux utilisateurs et envoie un message.
+      tags:
+        - Chat
+      requestBody:
+        description: Données nécessaires pour créer un chat et envoyer un message.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipientId:
+                  type: integer
+                  description: ID du destinataire.
+                text:
+                  type: string
+                  description: Contenu du message.
+              required:
+                - recipientId
+                - text
+      responses:
+        '200':
+          description: Message envoyé avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message envoyé avec succès
+                  data:
+                    type: object
+                    properties:
+                      chat:
+                        type: object
+                      message:
+                        type: object
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Utilisateur ou acteur non trouvé.
+        '400':
+          description: Erreur lors de la création du message.
+
+  /{chatId}:
+    get:
+      summary: Récupérer les messages d'une discussion
+      description: Récupère tous les messages d'une discussion spécifique.
+      tags:
+        - Chat
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+          description: ID de la discussion.
+      responses:
+        '200':
+          description: Messages récupérés avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Messages récupérés avec succès
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion non trouvée.
+        '400':
+          description: Erreur lors de la récupération des messages.
+
+  /mark-seen:
+    post:
+      summary: Marquer un message comme vu
+      description: Met à jour le statut d'un message pour le marquer comme vu.
+      tags:
+        - Chat
+      requestBody:
+        description: Données nécessaires pour marquer le message comme vu.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chatId:
+                  type: integer
+                  description: ID de la discussion.
+                messageId:
+                  type: integer
+                  description: ID du message à marquer comme vu.
+              required:
+                - chatId
+                - messageId
+      responses:
+        '200':
+          description: Message marqué comme lu.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message marqué comme lu
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion ou message non trouvé.
+        '400':
+          description: Erreur lors de la mise à jour du message.
+
+  /update/{chatId}/{messageId}:
+    put:
+      summary: Mettre à jour un message
+      description: Met à jour le contenu d'un message dans une discussion.
+      tags:
+        - Chat
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+          description: ID de la discussion.
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: integer
+          description: ID du message à mettre à jour.
+      requestBody:
+        description: Données nécessaires pour mettre à jour un message.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: Nouveau contenu du message.
+                text:
+                  type: string
+                  description: Nouveau texte du message.
+              required:
+                - content
+                - text
+      responses:
+        '200':
+          description: Message mis à jour avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message mis à jour avec succès
+                  data:
+                    type: object
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion ou message non trouvé.
+        '403':
+          description: Modification non autorisée.
+        '400':
+          description: Erreur lors de la mise à jour du message.
+
+  /delete/{chatId}/{messageId}:
+    delete:
+      summary: Supprimer un message
+      description: Supprime un message d'une discussion.
+      tags:
+        - Chat
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+          description: ID de la discussion.
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: integer
+          description: ID du message à supprimer.
+      responses:
+        '200':
+          description: Message supprimé avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message supprimé avec succès
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion ou message non trouvé.
+        '403':
+          description: Suppression non autorisée.
+        '400':
+          description: Erreur lors de la suppression du message.
           
 
   # Add similar paths for other models...

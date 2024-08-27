@@ -1,5 +1,5 @@
-import ChatController from "../controller/ChatController";
-import Middleware from "../Middleware/Middelware.js";
+import ChatController from "../controller/ChatController.js";
+import Middleware from "../Middleware/Middleware.js";
 import express from "express";
 const router = express.Router();
 router.post('/create', Middleware.auth, ChatController.createChatAndSendMessage);

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 export default class ShareController {
     //share
@@ -820,10 +820,10 @@ export default class ShareController {
                 where: { idUser: post.idActor }
             });
             if (actor) {
-                actor.votes = (actor.votes || 0) + note;
+                actor.vote = (actor.vote || 0) + note;
                 await prisma.actor.update({
                     where: { id: actor.id },
-                    data: { votes: actor.votes }
+                    data: { vote: actor.vote }
                 });
             }
             res.status(200).json({ message: "Post noté avec succès", status: true });

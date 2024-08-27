@@ -261,7 +261,7 @@ export default class UserController {
                     address: req.body.address,
                     bio: req.body.bio,
                     role: "TAILOR",
-                    votes: 0
+                    vote: 0
                 },
                 include: {
                     user: true
@@ -300,7 +300,7 @@ export default class UserController {
                     address: req.body.address,
                     bio: req.body.bio,
                     role: "VENDOR",
-                    votes: 0
+                    vote: 0
                 },
                 include: {
                     user: true

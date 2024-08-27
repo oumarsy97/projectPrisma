@@ -44,7 +44,7 @@ export default class ActorController {
                     bio: req.body.bio,
                     role: req.body.role,
                     credits: 50,
-                    votes: 0
+                    vote: 0
                 }
             });
             res.json({ message: `${role} created successfully`,
