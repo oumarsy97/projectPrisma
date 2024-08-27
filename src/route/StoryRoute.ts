@@ -1,7 +1,7 @@
 // StoryRoute.ts
 import express from 'express';
 import StoryController from '../controller/StoryController.js';
-import Middleware from '../Middleware/Middelware.js';
+import Middleware from '../Middleware/Middleware.js';
 import upload from '../config/multerConfig.js';
 
 const router = express.Router();
@@ -12,5 +12,5 @@ router.get('/mystories', Middleware.auth, Middleware.isTailor, StoryController.g
 router.post('/create', Middleware.auth, Middleware.isTailor, upload, StoryController.create);
 router.post('/view/:idStory', Middleware.auth, StoryController.viewStory);
 router.get('/views/:idStory', Middleware.auth, StoryController.getStoryViews);
-
+ 
 export default router;

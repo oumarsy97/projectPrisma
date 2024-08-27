@@ -1,24 +1,22 @@
 import { PrismaClient } from '@prisma/client';
-import Utils from '../utils/Utils.js';
-
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
-import { number } from 'zod';
 
 export default class RepostController{
 
     static createRepost = async (req: Request, res: Response) => {
         const idPost = Number(req.params.idPost);
-        const { idUser } = req.body;
+        const  idUser  = req.params.userId;
         try {
+
             const actor = await prisma.actor.findUnique({
                 where: { 
-                    idUser: idUser
-                }
+                    idUser: +idUser 
+                } 
             });
             if (!actor || actor.role!=="TAILOR"){
                 return res.status(403).json({
-                    message: "Only tailor can repost ! Mouy mboli di deme ",
+                    message: "Only tailor can repost !",
                     status: 403,
                 });
             }
@@ -35,7 +33,7 @@ export default class RepostController{
             }
             const exist = await prisma.repost.findFirst({
                 where: {
-                    idUser: idUser,
+                    idUser: +idUser,
                     idPost: idPost,
                 },
             });
@@ -47,7 +45,7 @@ export default class RepostController{
             }
             const repost = await prisma.repost.create({
                 data: {
-                    idUser: idUser,
+                    idUser: +idUser,
                     idPost: idPost,
                 },
             });
@@ -66,11 +64,11 @@ export default class RepostController{
 
     static deleteRepost = async (req: Request, res: Response) => {
         const idRepost = Number(req.params.idRepost);
-        const { idUser } = req.body;
+        const  idUser  = req.params.idUser;
         try {
             const actor = await prisma.actor.findUnique({
                 where: { 
-                    idUser: idUser
+                    idUser: +idUser
                 }
             });
             if (!actor || actor.role!=="TAILOR"){
@@ -84,7 +82,7 @@ export default class RepostController{
                     id: idRepost
                 }
             });
-            if (!repost || repost.idUser!==idUser) {
+            if (!repost || repost.idUser!==+idUser) {
                 return res.status(403).json({
                     message: "Vous ne pouvez pas supprimer ce repost.",
                     status: 403,

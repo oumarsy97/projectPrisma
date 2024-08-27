@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,6 +24,10 @@ enum Role {
   VENDOR
 }
 
+enum STATUT {
+  PENDING
+  VALIDATED
+}
 enum SIZE {
   XS
   S
@@ -37,6 +41,13 @@ enum STATUS {
   USED
 }
 
+enum ArticleState {
+  PUBLISHED
+  DRAFT
+  DELETED
+}
+
+
 model User {
   id        Int       @id @default(autoincrement())
   firstname String
@@ -48,14 +59,14 @@ model User {
   genre     Genre     @default(MALE)
   role      Role      @default(USER)
   // favoris Post[] 
-  likes     Like[]
-  dislikes  Dislike[]
-  comments  Comment[]
-
-  reposts   Repost[]
-  follow    Follow[]
-  actor     Actor?
-  ventes    Vente[]
+  likes Like[]
+  dislikes Dislike[]
+  comments Comment[]
+ 
+  reposts Repost[]
+  follow Follow[]
+  actor Actor[]
+  ventes Vente[]
   commandes Commande[]
   chats     Chat[] @relation("UserChats")
   favoris   Favori[]
@@ -71,8 +82,7 @@ model User {
   chats    Chat[]  
 
   report Report[]
-
-  @@map("users")
+  Notes Notes[]
 }
 
 model Favori {
@@ -88,48 +98,65 @@ model Favori {
 }
 
 model Actor {
-  id        Int       @id @default(autoincrement())
-  idUser    Int       @unique
-  user      User      @relation(fields: [idUser], references: [id])
-  address   String
-  bio       String
-  produits  Produit[]
-  credits   Int       @default(50)
-  vote      Int       @default(0)
-  role      Role      @default(TAILOR)
-  follow    Follow[]
-  ventes    Vente[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  posts     Post[]
-  story     Story[]
-  Chat      Chat[]
-
+  id    Int @id @default(autoincrement())
+  idUser Int  @unique
+  user  User @relation(fields: [idUser], references: [id])
+  address String
+  bio String
+  votes   Int
+  produits Produit[]
+  credits Int @default(50)
+  role Role @default(TAILOR)
+  follow Follow[]
+  ventes Vente[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts Post[]
+  story Story[]
+  Chat Chat[]
   @@map("actors")
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String
-  category    String
-  size        SIZE      @default(M)
-  content     Json
-  idActor     Int
-  user        Actor     @relation(fields: [idActor], references: [id])
-  likes       Like[]
-  dislikes    Dislike[]
-  comments    Comment[]
-  tags        Tag[]
-  share       Share[]
-  reposts     Repost[]
-  vues        Int       @default(0)
-  reports     Report[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  favoris     Favori[]
-
+  id    Int @id @default(autoincrement())
+  title  String
+  description  String
+  category String
+  size SIZE @default(M)
+  content Json
+  idActor Int
+  state ArticleState @default(DRAFT)
+  notes Notes[] 
+  user  Actor @relation(fields: [idActor], references: [id])
+  likes Like[]
+  dislikes Dislike[]
+  comments Comment[]
+  tags Tag[]
+  share Share[]
+  reposts Repost[]
+  vues Int @default(0)
+  reports Report[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  favoris Favori[]
   @@map("posts")
+}
+
+
+
+model Notes {
+  id        Int      @id @default(autoincrement())
+  note      Int
+  idUser    Int
+  author    User     @relation(fields: [idUser], references: [id])
+  postId    Int?     
+  post      Post?     @relation(fields: [postId], references: [id])
+  produitId Int?
+  produit   Produit?  @relation("NoteProduit", fields: [produitId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
 }
 
 model Like {
@@ -225,15 +252,17 @@ model Produit {
   id          Int               @id @default(autoincrement())
   libelle     String
   description String
-  image       String
-  price       Float
-  qte         Int
-  idUser      Int
-  vendor      Actor             @relation(fields: [idUser], references: [id])
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  commandes   CommandeProduit[]
-  ventes      Vente[]
+  state ArticleState @default(DRAFT)
+  image String
+  price Float
+  qte Int
+  idUser Int
+  vendor  Actor @relation(fields: [idUser], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  commandes CommandeProduit[] 
+  notes Notes[] @relation("NoteProduit")
+  VenteDetail VenteDetail[]
 
   @@map("produits")
 }
@@ -252,30 +281,43 @@ model Follow {
 }
 
 model Vente {
-  id        Int      @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   idActor   Int
-  idProduit Int
   idUser    Int
-  user      User     @relation(fields: [idUser], references: [id])
-  price     Float
-  quantity  Int
-  actor     Actor    @relation(fields: [idActor], references: [id])
-  produit   Produit  @relation(fields: [idProduit], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  totalAmount Float @default(0)
+  user      User         @relation(fields: [idUser], references: [id])
+  actor     Actor        @relation(fields: [idActor], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relation to VenteDetail
+  venteDetails VenteDetail[] @relation("VenteVenteDetails")
 
   @@map("ventes")
 }
+model VenteDetail {
+  id        Int      @id @default(autoincrement())
+  idVente   Int
+  idProduit Int
+  quantity  Int
+  price     Float
+  montant   Float
+  produit   Produit  @relation(fields: [idProduit], references: [id])
+  vente     Vente    @relation(fields: [idVente], references: [id], name: "VenteVenteDetails")
+  
+  @@map("vente_details")
+}
+
 
 model Commande {
-  id        Int               @id @default(autoincrement())
-  idUser    Int
-  idProduit Int
-  montant   Float
-  user      User              @relation(fields: [idUser], references: [id])
-  produits  CommandeProduit[]
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id    Int @id @default(autoincrement())
+  idUser Int
+  montant Float
+  statut STATUT @default(PENDING)
+  user  User @relation(fields: [idUser], references: [id])
+  produits  CommandeProduit[] 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("commandes")
 }
@@ -320,41 +362,32 @@ model GenerateCode {
   @@map("codes")
 }
 
-// model Chat {
-//   id    Int @id @default(autoincrement())
-//   idUser Int
-//   idActor Int
-//   message String
-//   content Json
-//   user  User @relation(fields: [idUser], references: [id])
-//   actor  Actor @relation(fields: [idActor], references: [id])
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   @@map("chats")
-// }
+
 
 model Chat {
   id        Int       @id @default(autoincrement())
   idUser    Int
   idActor   Int
-  initiator User   @relation("UserChats", fields: [idUser], references: [id])
-  recipient Actor  @relation("ActorChats", fields: [idActor], references: [id])
-  messages  Message[] @relation("ChatMessages")
+  messages  Message[]
+  content   Json
+  user      User      @relation(fields: [idUser], references: [id])
+  actor     Actor     @relation(fields: [idActor], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("chats")
 }
 
 model Message {
   id        Int      @id @default(autoincrement())
-  message   String?
+  sender    Int
   content   Json
+  text      String
   seen      Boolean  @default(false)
-  idChat    Int
-  idUser    Int
-
-  chat Chat @relation("ChatMessages", fields: [idChat], references: [id])
-  user User @relation("UserMessages", fields: [idUser], references: [id])
-
+  chatId    Int
+  chat      Chat     @relation(fields: [chatId], references: [id])
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("messages")
 }

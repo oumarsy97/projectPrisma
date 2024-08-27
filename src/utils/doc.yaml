@@ -1,0 +1,638 @@
+openapi: 3.0.0
+info:
+  title: Prisma API Documentation
+  version: 1.0.0
+  description: Documentation for the Prisma API
+
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+paths:
+  /users:
+    get:
+      summary: Retrieve a list of users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/login:
+    post:
+      summary: se connecter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      summary: Retrieve a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A user object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /users/monprofile:
+    get:
+      summary: Retrieve a list of users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/ajoutercredits:
+    post:
+      summary: ajouter du credit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                  code:
+                    type: string
+      responses:
+        '201':
+          description: code success
+  /users/achatcode:
+    post:
+      summary: achat code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                  montant:
+                    type: number
+      responses:
+        '201':
+          description: code success
+          
+  /users/credits:
+    get:
+      summary: Retrieve a list of users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /posts:
+    get:
+      summary: Retrieve a list of posts
+      responses:
+        '200':
+          description: A list of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a new post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  /posts/{id}:
+    get:
+      summary: Retrieve a post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A post object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+    
+      
+
+  /favoris:
+    get:
+      summary: Retrieve a list of favoris
+      responses:
+        '200':
+          description: A list of favoris
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favori'
+    post:
+      summary: Create a new favori
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FavoriCreate'
+      responses:
+        '201':
+          description: Favori created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favori'
+
+  /favoris/{id}:
+    get:
+      summary: Retrieve a favori by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the favori
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A favori object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favori'
+        '404':
+          description: Favori not found
+          
+  /produits:
+    post:
+      summary: Ajouter un produit
+      tags: [Produits]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle:
+                  type: string
+                description:
+                  type: string
+                image:
+                  type: string
+                price:
+                  type: number
+                qte:
+                  type: integer
+                idUser:
+                  type: integer
+      responses:
+        '200':
+          description: Produit créé avec succès
+        '400':
+          description: Erreur de validation ou utilisateur non trouvé
+        '500':
+          description: Erreur interne du serveur
+
+  /produits/{id}:
+    put:
+      summary: Mettre à jour un produit
+      tags: [Produits]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à mettre à jour
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                libelle:
+                  type: string
+                description:
+                  type: string
+                image:
+                  type: string
+                price:
+                  type: number
+                qte:
+                  type: integer
+      responses:
+        '200':
+          description: Produit mis à jour avec succès
+        '400':
+          description: Erreur de validation
+        '500':
+          description: Erreur interne du serveur
+
+  /produits/user/{idUser}:
+    get:
+      summary: Récupérer les produits d'un utilisateur
+      tags: [Produits]
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          description: ID de l'utilisateur
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Produits récupérés avec succès
+        '500':
+          description: Erreur interne du serveur
+
+  /commandes:
+    post:
+      summary: Créer une nouvelle commande
+      tags: [Commandes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idUser:
+                  type: integer
+      responses:
+        '200':
+          description: Commande créée avec succès
+        '400':
+          description: Erreur de validation
+        '500':
+          description: Erreur interne du serveur
+
+  /commandes/{id}/valider:
+    put:
+      summary: Valider une commande
+      tags: [Commandes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la commande à valider
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Commande validée avec succès
+        '400':
+          description: Erreur de validation
+        '500':
+          description: Erreur interne du serveur
+
+  /commandes/user/{idUser}:
+    get:
+      summary: Récupérer les commandes d'un utilisateur
+      tags: [Commandes]
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          description: ID de l'utilisateur
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Commandes récupérées avec succès
+        '500':
+          description: Erreur interne du serveur
+  /commandes/vendor/{idVendor}:
+    get:
+      summary: Récupérer les commandes d'un vendeur
+      tags: [Commandes]
+      parameters:
+        - name: idVendor
+          in: path
+          required: true
+          description: ID du vendeur
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Commandes sélectionnees avec succes
+        '500':
+          description: Erreur interne du serveur
+          
+
+  # Add similar paths for other models...
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The user ID
+        firstname:
+          type: string
+          description: The user's first name
+        lastname:
+          type: string
+          description: The user's last name
+        email:
+          type: string
+          description: The user's email address
+        password:
+          type: string
+          description: The user's password
+        phone:
+          type: string
+          description: The user's phone number
+        photo:
+          type: string
+          description: The URL of the user's photo
+        genre:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+          description: The user's gender
+        role:
+          type: string
+          enum:
+            - TAILOR
+            - USER
+            - VENDOR
+          description: The user's role
+        createdAt:
+          type: string
+          format: date-time
+          description: When the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the user was last updated
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+        password:
+          type: string
+          description: The user's password
+        
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The post ID
+        title:
+          type: string
+          description: The post title
+        description:
+          type: string
+          description: The post description
+        category:
+          type: string
+          description: The post category
+        size:
+          type: string
+          enum:
+            - XS
+            - S
+            - M
+            - L
+            - XL
+          description: The post size
+        content:
+          type: object
+          description: The post content in JSON format
+        idActor:
+          type: integer
+          description: The ID of the actor who created the post
+        createdAt:
+          type: string
+          format: date-time
+          description: When the post was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the post was last updated
+
+    PostCreate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        size:
+          type: string
+          enum:
+            - XS
+            - S
+            - M
+            - L
+            - XL
+        content:
+          type: object
+        idActor:
+          type: integer
+
+    Favori:
+      type: object
+      properties:
+        id:
+          type: integer
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    FavoriCreate:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+
+    Actor:
+      type: object
+      properties:
+        id:
+          type: integer
+        idUser:
+          type: integer
+        address:
+          type: string
+        bio:
+          type: string
+        credits:
+          type: integer
+        vote:
+          type: integer
+        role:
+          type: string
+          enum:
+            - TAILOR
+            - USER
+            - VENDOR
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ActorCreate:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        address:
+          type: string
+        bio:
+          type: string
+        credits:
+          type: integer
+        role:
+          type: string
+          enum:
+            - TAILOR
+            - USER
+            - VENDOR
+
+    Commande:
+      type: object
+      properties:
+        id:
+          type: integer
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+        idActor:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CommandeCreate:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+        idActor:
+          type: integer
+
+    CommandeUpdate:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+        idActor:
+          type: integer
+
+    FavoriUpdate:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+
+    FavoriDelete:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+
+    CommandeDelete:
+      type: object
+      properties:
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+
+    # Define schemas for other models similarly...

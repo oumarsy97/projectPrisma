@@ -4,7 +4,7 @@ info:
   description: Documentation de l'API pour gérer les Story et les Follow des utilisateurs.
   version: 1.0.0
 servers:
-  - url: http://localhost:8000/api
+  - url: http://localhost:5000/api/v1
     description: Serveur de développement local
 tags:
   - name: Follow
