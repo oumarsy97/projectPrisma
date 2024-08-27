@@ -1,9 +1,9 @@
 import { Router } from "express";
-import Middleware from "../Middleware/Middelware.js";
+import Middleware from "../Middleware/Middleware.js";
 import PostController from "../controller/PostController.js";
 const router = Router();
 
-//post 
+//post  
 router.post("/", Middleware.auth,Middleware.isTailor, PostController.createPost);
 router.get("/", Middleware.auth, PostController.allposts);
 router.get("/myposts", Middleware.auth,Middleware.isTailor, PostController.mypost);
@@ -30,6 +30,9 @@ router.get("/tagbypost/:postId", Middleware.auth, PostController.gettag);
 //favoris
 router.post("/favoris/:postId", Middleware.auth, PostController.addfavoris);
 router.get("/myfavoris", Middleware.auth, PostController.getfavoris);
+//noter
+router.post("/notes", Middleware.auth, PostController.noterPost);
+
 
 
 export default router;

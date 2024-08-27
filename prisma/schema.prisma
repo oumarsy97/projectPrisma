@@ -72,6 +72,7 @@ model User {
   Share Share[] @relation("SharesFromUser")
   received Share[] @relation("SharesToUser")
   report Report[]
+  Notes Notes[]
 }
 
 model Favori {
@@ -90,9 +91,9 @@ model Actor {
   user  User @relation(fields: [idUser], references: [id])
   address String
   bio String
+  votes   Int
   produits Produit[]
   credits Int @default(50)
-  vote Int @default(0)
   role Role @default(TAILOR)
   follow Follow[]
   ventes Vente[]
@@ -113,6 +114,7 @@ model Post {
   size SIZE @default(M)
   content Json
   idActor Int
+  notes Notes[] 
   user  Actor @relation(fields: [idActor], references: [id])
   likes Like[]
   dislikes Dislike[]
@@ -126,6 +128,23 @@ model Post {
   updatedAt DateTime @updatedAt
   favoris Favori[]
   @@map("posts")
+}
+
+
+
+model Notes {
+  id        Int      @id @default(autoincrement())
+  note      Int
+  idUser    Int
+  author    User     @relation(fields: [idUser], references: [id])
+  postId    Int?     
+  post      Post?     @relation(fields: [postId], references: [id])
+  produitId Int?
+  produit   Produit?  @relation("NoteProduit", fields: [produitId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
 }
 
 model Like {
@@ -221,8 +240,9 @@ model Produit {
   vendor  Actor @relation(fields: [idUser], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- commandes CommandeProduit[] 
+  commandes CommandeProduit[] 
   ventes Vente[]
+  notes Notes[] @relation("NoteProduit")
 
   @@map("produits")
 }
@@ -318,14 +338,3 @@ model Chat {
   @@map("chats")
 }
 
-model Message {
-  id Int @id @default(autoincrement())
-  sender Int
-  content Json
-  text String
-  seen Boolean @default(false)
-  chatId Int
-  chat Chat @relation(fields: [chatId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}

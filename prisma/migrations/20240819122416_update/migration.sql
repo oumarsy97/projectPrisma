@@ -47,6 +47,7 @@ CREATE TABLE "actors" (
     "idUser" INTEGER NOT NULL,
     "address" TEXT NOT NULL,
     "bio" TEXT NOT NULL,
+    "votes" INTEGER NOT NULL,
     "credits" INTEGER NOT NULL DEFAULT 50,
     "vote" INTEGER NOT NULL DEFAULT 0,
     "role" "Role" NOT NULL DEFAULT 'TAILOR',
@@ -70,6 +71,18 @@ CREATE TABLE "posts" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "posts_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "notes" (
+    "id" SERIAL NOT NULL,
+    "note" INTEGER NOT NULL,
+    "idUser" INTEGER NOT NULL,
+    "postId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "notes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -219,7 +232,7 @@ CREATE TABLE "commande_produits" (
 CREATE TABLE "stories" (
     "id" SERIAL NOT NULL,
     "idActory" INTEGER NOT NULL,
-    "photo" TEXT NOT NULL,
+    "photo" TEXT,
     "description" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "vues" INTEGER NOT NULL DEFAULT 0,
@@ -281,6 +294,12 @@ ALTER TABLE "actors" ADD CONSTRAINT "actors_idUser_fkey" FOREIGN KEY ("idUser") 
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_idActor_fkey" FOREIGN KEY ("idActor") REFERENCES "actors"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "notes" ADD CONSTRAINT "notes_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "notes" ADD CONSTRAINT "notes_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "likes" ADD CONSTRAINT "likes_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
