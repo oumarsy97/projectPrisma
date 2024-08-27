@@ -101,6 +101,14 @@ export default class UserController {
     }
 }
 
+    // static logout = async (req: Request, res: Response) => {
+    //     const token = req.headers['authorization']?.split(' ')[1];
+    //     if (token) {
+    //         await prisma.tokenBlacklist.create({data: {token} });
+    //     }
+    //     res.status(200).json({ message: "User logged out successfully", status: 200 });
+    // }
+
     static getUser = async (req: Request, res: Response) => {
         const idUser = req.params.userId;
         try{
@@ -226,7 +234,5 @@ export default class UserController {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }
     };
-
-
 
 }

@@ -25,11 +25,25 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `http://localhost:${process.env.PORT}`, // Changez l'URL selon votre configuration
+                url: `http://localhost:${process.env.PORT}/api/v1`,
             },
         ],
+        security: [
+            {
+                bearerAuth: [] 
+            }
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
+        },
     },
-    apis: ['./src/routes/*.ts'], // Chemin vers vos fichiers de routes
+    apis: ['./src/routes/*.ts', './swagger.yaml'],
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
@@ -38,7 +52,6 @@ app.use(`${process.env.BASE_URL}/posts`, PostRoute);
 app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);
 app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/produits`, ProduitRoute);
-setupSwagger(app);
 app.listen(`${process.env.PORT}`, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 });

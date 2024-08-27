@@ -8,7 +8,7 @@ const router = Router();
 router.post('/', Middleware.auth, Middleware.isVendor, ProduitController.addProduit);
 router.put('/:id', Middleware.auth, Middleware.isVendor, ProduitController.updateProduit);
 router.get('/:id', Middleware.auth, ProduitController.findProduit);
-router.get('/user/:idUser', Middleware.auth, ProduitController.findProduitUser);
+router.get('/user/:idActor', Middleware.auth, ProduitController.findProduitUser);
 router.post("/notes", Middleware.auth, ProduitController.noterProduit);
 
 // Routes pour les commandes

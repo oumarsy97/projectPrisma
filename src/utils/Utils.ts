@@ -6,7 +6,7 @@ export default class Utils {
         return jwt.sign({id}, process.env.SECRET_KEY as string, {
             expiresIn: "1d",
         });
-    }  
+    }
 
     static hashPassword(password: string) {
         return bcrypt.hashSync(password, 10);

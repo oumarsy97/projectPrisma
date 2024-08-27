@@ -73,12 +73,12 @@ paths:
         '500':
           description: Erreur interne du serveur
 
-  /produits/user/{idUser}:
+  /produits/user/{idActor}:
     get:
       summary: Récupérer les produits d'un utilisateur
       tags: [Produits]
       parameters:
-        - name: idUser
+        - name: idActor
           in: path
           required: true
           description: ID de l'utilisateur
