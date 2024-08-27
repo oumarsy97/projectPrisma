@@ -10,7 +10,7 @@ tags:
   - name: Follow
     description: Gestion des relations de suivi entre utilisateurs.
   - name: Story
-    description: Gestion des histoires des utilisateurs.
+    description: Gestion des Storys des utilisateurs.
 
 paths:
   /follow:
@@ -219,8 +219,8 @@ paths:
     post:
       tags:
         - Story
-      summary: Créer une histoire
-      description: Crée une nouvelle histoire pour l'utilisateur authentifié.
+      summary: Créer une Story
+      description: Crée une nouvelle Story pour l'utilisateur authentifié.
       requestBody:
         required: true
         content:
@@ -230,16 +230,16 @@ paths:
               properties:
                 title:
                   type: string
-                  example: "Titre de l'histoire"
+                  example: "Titre de Story"
                 description:
                   type: string
-                  example: "Description de l'histoire"
+                  example: "Description de Story"
                 photo:
                   type: string
                   format: binary
       responses:
         '201':
-          description: Histoire créée avec succès.
+          description: Story créée avec succès.
         '400':
           description: Erreur de validation ou format invalide.
         '401':
@@ -251,8 +251,8 @@ paths:
     delete:
       tags:
         - Story
-      summary: Supprimer une histoire
-      description: Supprime une histoire spécifique créée par l'utilisateur authentifié.
+      summary: Supprimer une Story
+      description: Supprime une Story spécifique créée par l'utilisateur authentifié.
       parameters:
         - name: idStory
           in: path
@@ -262,11 +262,11 @@ paths:
             example: 123
       responses:
         '200':
-          description: Histoire supprimée avec succès.
+          description: Story supprimée avec succès.
         '400':
-          description: Erreur d'autorisation ou histoire non trouvée.
+          description: Erreur d'autorisation ou Story non trouvée.
         '404':
-          description: Histoire non trouvée.
+          description: Story non trouvée.
         '500':
           description: Erreur serveur.
 
@@ -274,8 +274,8 @@ paths:
     post:
       tags:
         - Story
-      summary: Voir une histoire
-      description: Augmente le compteur de vues pour une histoire spécifique.
+      summary: Voir une Story
+      description: Augmente le compteur de vues pour une Story spécifique.
       parameters:
         - name: idStory
           in: path
@@ -285,11 +285,11 @@ paths:
             example: 123
       responses:
         '200':
-          description: Vue de l'histoire mise à jour avec succès.
+          description: Vue de l'Story mise à jour avec succès.
         '400':
-          description: L'utilisateur ne peut pas voir sa propre histoire.
+          description: L'utilisateur ne peut pas voir sa propre Story.
         '404':
-          description: Histoire non trouvée.
+          description: Story non trouvée.
         '500':
           description: Erreur serveur.
 
@@ -297,8 +297,8 @@ paths:
     get:
       tags:
         - Story
-      summary: Obtenir les vues d'une histoire
-      description: Récupère le nombre de vues pour une histoire spécifique.
+      summary: Obtenir les vues d'une Story
+      description: Récupère le nombre de vues pour une Story spécifique.
       parameters:
         - name: idStory
           in: path
@@ -312,7 +312,7 @@ paths:
         '403':
           description: Utilisateur non autorisé à voir les vues.
         '404':
-          description: Histoire non trouvée.
+          description: Story non trouvée.
         '500':
           description: Erreur serveur.
 
@@ -320,11 +320,11 @@ paths:
     get:
       tags:
         - Story
-      summary: Obtenir les histoires de l'utilisateur authentifié
-      description: Récupère toutes les histoires créées par l'utilisateur authentifié.
+      summary: Obtenir les Storys de l'utilisateur authentifié
+      description: Récupère toutes les Storys créées par l'utilisateur authentifié.
       responses:
         '200':
-          description: Liste des histoires récupérée avec succès.
+          description: Liste des Storys récupérée avec succès.
         '401':
           description: Utilisateur non autorisé.
         '500':
@@ -334,11 +334,11 @@ paths:
     get:
       tags:
         - Story
-      summary: Obtenir les histoires des utilisateurs Follow
-      description: Récupère les histoires des utilisateurs que l'utilisateur authentifié suit.
+      summary: Obtenir les Storys des utilisateurs Follow
+      description: Récupère les Storys des utilisateurs que l'utilisateur authentifié suit.
       responses:
         '200':
-          description: Liste des histoires récupérée avec succès.
+          description: Liste des Storys récupérée avec succès.
         '401':
           description: Utilisateur non autorisé.
         '500':
