@@ -49,7 +49,7 @@ export default class ActorController{
                 photo: req.body.photo,
                 email: req.body.email,
                 password: password,
-                role: req.body.role? req.body.role:"TAILOR"
+                role: req.body.role ? req.body.role : "TAILOR"
             }
         })
 

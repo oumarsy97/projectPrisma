@@ -216,8 +216,8 @@ export default class UserController {
             
             const user = await prisma.user.findUnique({ where: { id: Number(idUser) } });
             if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
-    
-            const { montant, modePaiement } = req.body;
+           
+            const { montant } = req.body;
     
             if (montant < 100) return res.status(400).json({ message: "Montant invalide", data: null, status: 400 });
     
@@ -262,6 +262,7 @@ export default class UserController {
             if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
             const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
             if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
+            
             res.status(200).json({ message: "Credits added successfully", data: tailor, status: 200 });
 
         } catch (error: any) {
