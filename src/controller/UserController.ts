@@ -121,17 +121,17 @@ export default class UserController {
             }
         });
         if (!user) {
-            res.json({message : "User not found"});
+            res.json({message : "User not found", status: 404, data: null});
         }
         if(user && Utils.comparePassword(req.body.password, user.password)) {
-            const token = Utils.generateToken(user.id);
-            res.json({message: "User logged in successfully",
+            const token = Utils.generateToken(user);
+            res.status(200).json({message: "User logged in successfully",
                 token: token,
                 status: 200
             });
         }
         else {
-            res.json({message: "Email or password is incorrect",
+            res.status(401).json({message: "Email or password is incorrect",
                 status: 401
             });
         }
