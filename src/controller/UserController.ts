@@ -4,49 +4,64 @@ const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import Validation from '../Validation/Validation.js';
 import Messenger from '../utils/Messenger.js'; 
+import upload from '../config/multerConfig.js';
 
 
 export default class UserController {
     
     static createUser = async (req: Request, res: Response) => {
-        const validationResult = Validation.validateUser.safeParse(req.body);
-        if(!validationResult.success) {
-            return res.status(400).json({message: validationResult.error.message, status: 400});
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+
+      const validationResult = Validation.validateUser.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ message: validationResult.error.message, status: 400 });
+      }
+
+      try {
+        if (req.body.password !== req.body.confirmPassword) {
+          return res.status(400).json({ message: "Passwords do not match", status: 400 });
         }
-        try {
-            const passwords = req.body.password;
-            const confirmPassword = req.body.confirmPassword;
-            if (passwords !== confirmPassword) {
-                return res.status(400).json({ message: "Passwords do not match", status: 400 });
-            }
-            
+
         const password = Utils.hashPassword(req.body.password);
         const user = await prisma.user.create({
-            data: {
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                phone: req.body.phone,
-                photo: req.body.photo,
-                role: req.body.role,
-                email: req.body.email,
-                password: password
-            }
+          data: {
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            phone: req.body.phone,
+            photo: req.file?.path || "",  // Add the photo field
+            role: req.body.role,
+            email: req.body.email,
+            password: password,
+          },
         });
-         Messenger.sendMail(user.email, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
-         Messenger.sendSms(user.phone, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
 
-        res.json({message: "User created successfully",
-            data: user,
-         status: 200
-        });  
-      }
-      catch (error: any) {
+        Messenger.sendMail(
+          user.email,
+          user.firstname,
+          "Welcome to our platform! Your account has been created successfully. You can now log in to your account."
+        );
+        Messenger.sendSms(
+          user.phone,
+          user.firstname,
+          "Welcome to our platform! Your account has been created successfully. You can now log in to your account."
+        );
+
+        res.json({
+          message: "User created successfully",
+          data: user,
+          status: 200,
+        });
+      } catch (error: any) {
         res.status(500).json({
-            message: "Internal server error",
-            error: error.message,
-          });
+          message: "Internal server error",
+          error: error.message,
+        });
       }
-    }
+    });
+  };
 
     static getAllUsers = async (req: Request, res: Response) => {
         try {

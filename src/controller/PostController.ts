@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { report } from "process";
+import upload from '../config/multerConfig.js';
 
 const prisma = new PrismaClient();
 
@@ -415,60 +416,62 @@ static getComments = async (req: Request, res: Response) => {
 }
 
 //post
-static  createPost = async (req: Request, res: Response) => {
-    try {
+static createPost = async (req: Request, res: Response) => {
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+
+      try {
         const userId = req.params.userId;
         const user = await prisma.user.findUnique({
-            where: {
-                id: Number(userId)
-            }
+          where: { id: Number(userId) },
         });
 
-        if (user === null) {
-            return res.status(400).json({ message: "User not found" });
+        if (!user) {
+          return res.status(400).json({ message: "User not found" });
         }
+
         const actor = await prisma.actor.findUnique({
-            where: {
-                idUser: Number(userId)
-            }
-        })
-
-        if (actor === null) {
-            return res.status(400).json({ message: "Actor not found" });
-        }
-        if(actor.credits < 10){
-            return res.status(400).json({ message: "Actor does not have enough credits" });
-        }
-        const newPost = await prisma.post.create({
-            data: {
-                idActor: Number(actor.id),
-                title: req.body.title,
-                content: req.body.content,
-                category: req.body.category,
-                description: req.body.description,
-            },
+          where: { idUser: Number(userId) },
         });
-        //  console.log(actor);
+
+        if (!actor) {
+          return res.status(400).json({ message: "Actor not found" });
+        }
+
+        if (actor.credits < 10) {
+          return res
+            .status(400)
+            .json({ message: "Actor does not have enough credits" });
+        }
+
+        const newPost = await prisma.post.create({
+          data: {
+            idActor: Number(actor.id),
+            title: req.body.title,
+            category: req.body.category,
+            description: req.body.description,
+            photo: req.file?.path || '', // Utilisez null au lieu d'une chaîne vide si aucune photo n'est téléchargée
+          },
+        });
 
         await prisma.actor.update({
-            where: {
-                id: Number(actor.id)
-            },
-            data: {
-                credits: {
-                    decrement: 10
-                }
-            }
+          where: { id: Number(actor.id) },
+          data: { credits: { decrement: 10 } },
         });
 
-        res.json({ message: "Post created successfully",
-            data: newPost,
-            status: 200
+        res.json({
+          message: "Post created successfully",
+          data: newPost,
+          status: 200,
         });
-    } catch (error) {
-        res.status(500).json({ message: "Internal server errors" });
-    }
-}
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+  };
 //supprimer un post
 static deletePost = async (req: Request, res: Response) => {
     try {
@@ -593,7 +596,6 @@ static updatepost = async (req:Request,res:Response) => {
             },
             data: {
                 title: req.body.title,
-                content: req.body.content,
                 category: req.body.image,
                 description: req.body.description,
             },

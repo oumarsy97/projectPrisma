@@ -3,43 +3,48 @@ import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
 import Validation from '../Validation/Validation.js';
 import Messenger from '../utils/Messenger.js';
+import upload from '../config/multerConfig.js';
 export default class UserController {
     static createUser = async (req, res) => {
-        const validationResult = Validation.validateUser.safeParse(req.body);
-        if (!validationResult.success) {
-            return res.status(400).json({ message: validationResult.error.message, status: 400 });
-        }
-        try {
-            const passwords = req.body.password;
-            const confirmPassword = req.body.confirmPassword;
-            if (passwords !== confirmPassword) {
-                return res.status(400).json({ message: "Passwords do not match", status: 400 });
+        upload(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ message: err.message });
             }
-            const password = Utils.hashPassword(req.body.password);
-            const user = await prisma.user.create({
-                data: {
-                    firstname: req.body.firstname,
-                    lastname: req.body.lastname,
-                    phone: req.body.phone,
-                    photo: req.body.photo,
-                    role: req.body.role,
-                    email: req.body.email,
-                    password: password
+            const validationResult = Validation.validateUser.safeParse(req.body);
+            if (!validationResult.success) {
+                return res.status(400).json({ message: validationResult.error.message, status: 400 });
+            }
+            try {
+                if (req.body.password !== req.body.confirmPassword) {
+                    return res.status(400).json({ message: "Passwords do not match", status: 400 });
                 }
-            });
-            Messenger.sendMail(user.email, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
-            Messenger.sendSms(user.phone, user.firstname, 'Welcome to our platform! in Your account has been created successfully. You can now log  to your account.');
-            res.json({ message: "User created successfully",
-                data: user,
-                status: 200
-            });
-        }
-        catch (error) {
-            res.status(500).json({
-                message: "Internal server error",
-                error: error.message,
-            });
-        }
+                const password = Utils.hashPassword(req.body.password);
+                const user = await prisma.user.create({
+                    data: {
+                        firstname: req.body.firstname,
+                        lastname: req.body.lastname,
+                        phone: req.body.phone,
+                        photo: req.file?.path || "", // Add the photo field
+                        role: req.body.role,
+                        email: req.body.email,
+                        password: password,
+                    },
+                });
+                Messenger.sendMail(user.email, user.firstname, "Welcome to our platform! Your account has been created successfully. You can now log in to your account.");
+                Messenger.sendSms(user.phone, user.firstname, "Welcome to our platform! Your account has been created successfully. You can now log in to your account.");
+                res.json({
+                    message: "User created successfully",
+                    data: user,
+                    status: 200,
+                });
+            }
+            catch (error) {
+                res.status(500).json({
+                    message: "Internal server error",
+                    error: error.message,
+                });
+            }
+        });
     };
     static getAllUsers = async (req, res) => {
         try {
@@ -111,17 +116,17 @@ export default class UserController {
                 }
             });
             if (!user) {
-                res.json({ message: "User not found" });
+                res.json({ message: "User not found", status: 404, data: null });
             }
             if (user && Utils.comparePassword(req.body.password, user.password)) {
-                const token = Utils.generateToken(user.id);
-                res.json({ message: "User logged in successfully",
+                const token = Utils.generateToken(user);
+                res.status(200).json({ message: "User logged in successfully",
                     token: token,
                     status: 200
                 });
             }
             else {
-                res.json({ message: "Email or password is incorrect",
+                res.status(401).json({ message: "Email or password is incorrect",
                     status: 401
                 });
             }
@@ -199,7 +204,7 @@ export default class UserController {
             const user = await prisma.user.findUnique({ where: { id: Number(idUser) } });
             if (!user)
                 return res.status(404).json({ message: "User not found", data: null, status: 404 });
-            const { montant, modePaiement } = req.body;
+            const { montant } = req.body;
             if (montant < 100)
                 return res.status(400).json({ message: "Montant invalide", data: null, status: 400 });
             const newCode = await prisma.generateCode.create({ data: {
