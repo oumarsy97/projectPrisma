@@ -67,6 +67,7 @@ export default class StoryController {
       if (!story) {
         return res.status(404).json({ message: "Story not found", data: null, status: false });
       }
+//verifier si l'utilisateur a deja vu la story
 
       
 

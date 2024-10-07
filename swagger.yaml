@@ -1,11 +1,961 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
-  title: API de Gestion des Produits
-  version: 1.0.0
-  description: Documentation de l'API pour la gestion des produits et des commandes
+  title: Prisma API Documentation
+  version: 1.0.1
+  description: Documentation for the Prisma API
+
 servers:
-  - url: http://localhost:5000
+  - description: SwaggerHub API Auto Mocking
+    url: https://projectprisma-tpm2.onrender.com/api/v1
+
+
+security:
+  - bearerAuth: []
+
+
+  
+tags:
+  - name: Follow
+    description: Gestion des relations de suivi entre utilisateurs.
+  - name: Story
+    description: Gestion des histoires des utilisateurs.
+
+
 paths:
+  /users:
+    get:
+      summary: Retrieve a list of users
+      tags: [users]
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a new user
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/login:
+    post:
+      summary: se connecter
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                properties:
+                  token:
+                    type: string
+
+  /users/{id}:
+    get:
+      summary: Retrieve a user by ID
+      tags: [users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A user object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /users/monprofile:
+    get:
+      summary: Retrieve a list of users
+      tags: [users]
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/ajoutercredits:
+    post:
+      summary: ajouter du credit
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                  code:
+                    type: string
+      responses:
+        '201':
+          description: code success
+  /users/achatcode:
+    post:
+      summary: achat code
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                  montant:
+                    type: number
+      responses:
+        '201':
+          description: code success
+          
+  /users/credits:
+    get:
+      summary: Retrieve a list of users
+      tags: [users]
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+                  
+  /actors/create:
+    post:
+      summary: Créer un acteur
+      tags:
+        - Actors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idUser:
+                  type: integer
+                address:
+                  type: string
+                bio:
+                  type: string
+                role:
+                  type: string
+                  enum: [TAILOR, USER, VENDOR]
+                credits:
+                  type: integer
+                  default: 50
+                vote:
+                  type: integer
+                  default: 0
+      responses:
+        '200':
+          description: Acteur créé avec succès
+        '400':
+          description: Erreur dans la requête
+
+  /actors/getactors:
+    get:
+      summary: Récupérer tous les acteurs
+      tags:
+        - Actors
+      responses:
+        '200':
+          description: Liste des acteurs
+        '404':
+          description: Acteurs non trouvés
+
+  /actors/getactor/{id}:
+    get:
+      summary: Récupérer un acteur par ID
+      tags:
+        - Actors
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID de l'acteur
+      responses:
+        '200':
+          description: Acteur trouvé
+        '404':
+          description: Acteur non trouvé
+
+  /actors/deleteactor/{id}:
+    delete:
+      summary: Supprimer un acteur
+      tags:
+        - Actors
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID de l'acteur
+      responses:
+        '200':
+          description: Acteur supprimé
+        '404':
+          description: Acteur non trouvé
+
+  /actors/update/{id}:
+    put:
+      summary: Mettre à jour un acteur
+      tags:
+        - Actors
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID de l'acteur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                bio:
+                  type: string
+      responses:
+        '200':
+          description: Acteur mis à jour
+        '400':
+          description: Erreur dans la requête
+
+  /reposts/repost/{idPost}:
+    post:
+      summary: Reposter un post
+      tags:
+        - Reposts
+      parameters:
+        - in: path
+          name: idPost
+          required: true
+          schema:
+            type: integer
+          description: ID du post
+      responses:
+        '200':
+          description: Post reposté
+        '400':
+          description: Erreur dans la requête
+
+  /reposts/repostByPost/{idPost}:
+    get:
+      summary: Récupérer les reposts d'un post
+      tags:
+        - Reposts
+      parameters:
+        - in: path
+          name: idPost
+          required: true
+          schema:
+            type: integer
+          description: ID du post
+      responses:
+        '200':
+          description: Liste des reposts
+        '404':
+          description: Reposts non trouvés
+
+  /reposts/deleterepost/{idRepost}:
+    delete:
+      summary: Supprimer un repost
+      tags:
+        - Reposts
+      parameters:
+        - in: path
+          name: idRepost
+          required: true
+          schema:
+            type: integer
+          description: ID du repost
+      responses:
+        '200':
+          description: Repost supprimé
+        '404':
+          description: Repost non trouvé
+
+  /reposts/Allreposts:
+    get:
+      summary: Récupérer tous les reposts
+      tags:
+        - Reposts
+      responses:
+        '200':
+          description: Liste des reposts
+        '404':
+          description: Reposts non trouvés
+
+  /posts/:
+    get:
+      summary: Retrieve a list of posts
+      tags: [post]
+      responses:
+        '200':
+          description: A list of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a new post
+      tags: [post]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  /posts/{id}:
+    get:
+      summary: Retrieve a post by ID
+      tags: [post]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A post object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+      
+
+  /posts/myfavoris:
+    get:
+      summary: mes favoris
+      tags: [favoris]
+      responses:
+        '200':
+          description: A list of favoris
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favori'
+  
+  /posts/favoris/{postId}:
+    post:
+      summary: Retrieve a favori by ID
+      tags: [favoris]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the favori
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A favori object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favori'
+        '404':
+          description: Favori not found
+          
+  /posts/tag/{postId}:
+    post:
+      summary: Retrieve a favori by ID
+      tags: [tag]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the favori
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A favori object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favori'
+        '404':
+          description: Favori not found
+   
+    get:
+      summary: Retrieve a favori by ID
+      tags: [tag]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the favori
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A favori object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favori'
+        '404':
+          description: Favori not found
+          
+  /posts/comment/{postId}:
+    post:
+      summary: Retrieve a favori by ID
+      tags: [comment]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the post
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+            
+      responses:
+        '200':
+           description: Comment created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+    
+    get:
+      summary: Retrieve a favori by ID
+      tags: [comment]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the post
+          schema:
+            type: integer
+      
+      responses:
+        '200':
+           description: Comment created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+  /posts/comment/{id}:
+    put:
+      summary: Retrieve a favori by ID
+      tags: [comment]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the comment
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+            
+      responses:
+        '200':
+           description: Comment created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+   
+    delete:
+      summary: Retrieve a favori by ID
+      tags: [comment]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the comment
+          schema:
+            type: integer
+      
+            
+      responses:
+        '200':
+           description: Comment deleted successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+  
+  /posts/report/{postId}:
+    post:
+      summary: Retrieve a favori by ID
+      tags: [report]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID of the comment
+          schema:
+            type: integer
+      
+            
+      responses:
+        '200':
+           description: Comment created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+   
+  /posts/shares:
+    post:
+      summary: partage 
+      tags: [share]
+     
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromId:
+                  type: integer
+                idPost:
+                  type: integer
+            
+      responses:
+        '200':
+           description: share created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+  
+  /posts/shares/myshares:
+    get:
+      summary: partage 
+      tags: [share]
+
+      responses:
+        '200':
+           description: share created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+   
+  /posts/shares/sharedwithme:
+    get:
+      summary: partage 
+      tags: [share]
+
+      responses:
+        '200':
+           description: share created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+   
+  /posts/shares/{id}:
+    delete:
+      summary: partage 
+      tags: [share]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the post
+          schema:
+            type: integer
+
+      responses:
+        '200':
+           description: share created successfully
+           content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  idUser:
+                    type: integer
+                    example: 1
+                  idPost:
+                    type: integer
+                    example: 1
+                  content:
+                    type: string
+                    example: "This is a comment."
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-18T10:00:00Z"
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+  
+  /ventes:
+    post:
+      summary: Créer une nouvelle vente
+      tags: [ventes]
+      description: Crée une nouvelle vente avec un client et une liste de produits.
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vente'
+            examples:
+              venteExample:
+                summary: Un exemple de vente
+                value:
+                  idclient: 2
+                  produits:
+                    - idProduit: 1
+                      qte: 5
+                    - idProduit: 2
+                      qte: 3
+      responses:
+        '200':
+          description: Vente créée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "vente created successfully"
+                  data:
+                    type: object
+                    description: Informations sur la vente créée
+        '400':
+          description: Requête invalide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request data"
+                  data:
+                    type: string
+                    example: null 
+    get:
+      summary: Récupérer une vente spécifique
+      description: Récupère les informations détaillées d'une vente par son ID.
+      tags:
+        - Ventes
+      
+      responses:
+        '200':
+          description: Informations sur la vente récupérée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vente'
+              examples:
+                venteExample:
+                  summary: Un exemple de réponse pour une vente
+                  value:
+                    id: 1
+                    idclient: 2
+                    produits:
+                      - idProduit: 1
+                        qte: 5
+                        price: 25.15
+                      - idProduit: 2
+                        qte: 3
+                        price: 50.00
+                    totalPrice: 175.45
+                    createdAt: "2024-08-20T10:20:30Z"
+        '404':
+          description: Vente non trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Vente not found"
+                  data:
+                    type: string
+                    example: null
+   
   /produits:
     post:
       summary: Ajouter un produit
@@ -146,3 +1096,776 @@ paths:
           description: Commandes récupérées avec succès
         '500':
           description: Erreur interne du serveur
+  /follows/follow:
+    post:
+      tags:
+        - Follow
+      summary: Suivre un utilisateur
+      description: Permet à un utilisateur de suivre un autre utilisateur.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idActor:
+                  type: integer
+                  example: 123
+      responses:
+        '201':
+          description: Relation de suivi créée avec succès.
+        '400':
+          description: Erreur de validation ou relation de suivi déjà existante.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Utilisateur ou acteur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/unfollow:
+    post:
+      tags:
+        - Follow
+      summary: Ne plus suivre un utilisateur
+      description: Permet à un utilisateur de ne plus suivre un autre utilisateur.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idActor:
+                  type: integer
+                  example: 123
+      responses:
+        '200':
+          description: Relation de suivi supprimée avec succès.
+        '400':
+          description: Relation de suivi non trouvée.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/myfollowers:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés de l'utilisateur actuel
+      description: Récupère la liste des abonnés de l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/myfollowing:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par l'utilisateur actuel
+      description: Récupère la liste des utilisateurs Follow par l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/followerbytailor/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés d'un acteur spécifique
+      description: Récupère la liste des abonnés d'un acteur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Acteur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/followingbytailor/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par un acteur spécifique
+      description: Récupère la liste des utilisateurs Follow par un acteur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Acteur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/getFollowers/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés d'un utilisateur spécifique
+      description: Récupère la liste des abonnés d'un utilisateur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Utilisateur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/getFollowing/{id}:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par un utilisateur spécifique
+      description: Récupère la liste des utilisateurs Follow par un utilisateur spécifique.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '404':
+          description: Utilisateur non trouvé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/getMyFollowers:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les abonnés de l'utilisateur authentifié
+      description: Récupère la liste des abonnés de l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des abonnés récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /follows/getMyFollowing:
+    get:
+      tags:
+        - Follow
+      summary: Obtenir les utilisateurs Follow par l'utilisateur authentifié
+      description: Récupère la liste des utilisateurs Follow par l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des utilisateurs Follow récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /story/create:
+    post:
+      tags:
+        - Story
+      summary: Créer une histoire
+      description: Crée une nouvelle histoire pour l'utilisateur authentifié.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Titre de l'histoire"
+                description:
+                  type: string
+                  example: "Description de l'histoire"
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Histoire créée avec succès.
+        '400':
+          description: Erreur de validation ou format invalide.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /story/delete/{idStory}:
+    delete:
+      tags:
+        - Story
+      summary: Supprimer une histoire
+      description: Supprime une histoire spécifique créée par l'utilisateur authentifié.
+      parameters:
+        - name: idStory
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Histoire supprimée avec succès.
+        '400':
+          description: Erreur d'autorisation ou histoire non trouvée.
+        '404':
+          description: Histoire non trouvée.
+        '500':
+          description: Erreur serveur.
+
+  /story/view/{idStory}:
+    post:
+      tags:
+        - Story
+      summary: Voir une histoire
+      description: Augmente le compteur de vues pour une histoire spécifique.
+      parameters:
+        - name: idStory
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Vue de l'histoire mise à jour avec succès.
+        '400':
+          description: L'utilisateur ne peut pas voir sa propre histoire.
+        '404':
+          description: Histoire non trouvée.
+        '500':
+          description: Erreur serveur.
+
+  /story/views/{idStory}:
+    get:
+      tags:
+        - Story
+      summary: Obtenir les vues d'une histoire
+      description: Récupère le nombre de vues pour une histoire spécifique.
+      parameters:
+        - name: idStory
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Nombre de vues récupéré avec succès.
+        '403':
+          description: Utilisateur non autorisé à voir les vues.
+        '404':
+          description: Histoire non trouvée.
+        '500':
+          description: Erreur serveur.
+
+  /story/myStory:
+    get:
+      tags:
+        - Story
+      summary: Obtenir les histoires de l'utilisateur authentifié
+      description: Récupère toutes les histoires créées par l'utilisateur authentifié.
+      responses:
+        '200':
+          description: Liste des histoires récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+
+  /story/followedStory:
+    get:
+      tags:
+        - Story
+      summary: Obtenir les histoires des utilisateurs Follow
+      description: Récupère les histoires des utilisateurs que l'utilisateur authentifié suit.
+      responses:
+        '200':
+          description: Liste des histoires récupérée avec succès.
+        '401':
+          description: Utilisateur non autorisé.
+        '500':
+          description: Erreur serveur.
+    
+ 
+  /chat/create:
+    post:
+      summary: Créer un chat et envoyer un message
+      description: Crée une nouvelle discussion entre deux utilisateurs et envoie un message.
+      tags:
+        - Chat
+      requestBody:
+        description: Données nécessaires pour créer un chat et envoyer un message.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipientId:
+                  type: integer
+                  description: ID du destinataire.
+                text:
+                  type: string
+                  description: Contenu du message.
+              required:
+                - recipientId
+                - text
+      responses:
+        '200':
+          description: Message envoyé avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message envoyé avec succès
+                  data:
+                    type: object
+                    properties:
+                      chat:
+                        type: object
+                      message:
+                        type: object
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Utilisateur ou acteur non trouvé.
+        '400':
+          description: Erreur lors de la création du message.
+
+  /chat/{chatId}:
+    get:
+      summary: Récupérer les messages d'une discussion
+      description: Récupère tous les messages d'une discussion spécifique.
+      tags:
+        - Chat
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+          description: ID de la discussion.
+      responses:
+        '200':
+          description: Messages récupérés avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Messages récupérés avec succès
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion non trouvée.
+        '400':
+          description: Erreur lors de la récupération des messages.
+
+  /chat/mark-seen:
+    post:
+      summary: Marquer un message comme vu
+      description: Met à jour le statut d'un message pour le marquer comme vu.
+      tags:
+        - Chat
+      requestBody:
+        description: Données nécessaires pour marquer le message comme vu.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chatId:
+                  type: integer
+                  description: ID de la discussion.
+                messageId:
+                  type: integer
+                  description: ID du message à marquer comme vu.
+              required:
+                - chatId
+                - messageId
+      responses:
+        '200':
+          description: Message marqué comme lu.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message marqué comme lu
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion ou message non trouvé.
+        '400':
+          description: Erreur lors de la mise à jour du message.
+
+  /chat/update/{chatId}/{messageId}:
+    put:
+      summary: Mettre à jour un message
+      description: Met à jour le contenu d'un message dans une discussion.
+      tags:
+        - Chat
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+          description: ID de la discussion.
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: integer
+          description: ID du message à mettre à jour.
+      requestBody:
+        description: Données nécessaires pour mettre à jour un message.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: Nouveau contenu du message.
+                text:
+                  type: string
+                  description: Nouveau texte du message.
+              required:
+                - content
+                - text
+      responses:
+        '200':
+          description: Message mis à jour avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message mis à jour avec succès
+                  data:
+                    type: object
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion ou message non trouvé.
+        '403':
+          description: Modification non autorisée.
+        '400':
+          description: Erreur lors de la mise à jour du message.
+
+  /chat/delete/{chatId}/{messageId}:
+    delete:
+      summary: Supprimer un message
+      description: Supprime un message d'une discussion.
+      tags:
+        - Chat
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: integer
+          description: ID de la discussion.
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: integer
+          description: ID du message à supprimer.
+      responses:
+        '200':
+          description: Message supprimé avec succès.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Message supprimé avec succès
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Discussion ou message non trouvé.
+        '403':
+          description: Suppression non autorisée.
+        '400':
+          description: Erreur lors de la suppression du message.
+        
+
+  # Add similar paths for other models...
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The user ID
+        firstname:
+          type: string
+          description: The user's first name
+        lastname:
+          type: string
+          description: The user's last name
+        email:
+          type: string
+          description: The user's email address
+        password:
+          type: string
+          description: The user's password
+        confirmPassword:
+          type: string
+          description: The user's password confirm
+        phone:
+          type: string
+          description: The user's phone number
+        photo:
+          type: string
+          description: The URL of the user's photo
+        genre:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+          description: The user's gender
+        role:
+          type: string
+          enum:
+            - TAILOR
+            - USER
+            - VENDOR
+          description: The user's role
+        createdAt:
+          type: string
+          format: date-time
+          description: When the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the user was last updated
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+        password:
+          type: string
+          description: The user's password
+        
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The post ID
+        title:
+          type: string
+          description: The post title
+        description:
+          type: string
+          description: The post description
+        category:
+          type: string
+          description: The post category
+        size:
+          type: string
+          enum:
+            - XS
+            - S
+            - M
+            - L
+            - XL
+          description: The post size
+        content:
+          type: object
+          description: The post content in JSON format
+        idActor:
+          type: integer
+          description: The ID of the actor who created the post
+        createdAt:
+          type: string
+          format: date-time
+          description: When the post was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the post was last updated
+
+    PostCreate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        size:
+          type: string
+          enum:
+            - XS
+            - S
+            - M
+            - L
+            - XL
+        content:
+          type: object
+        idActor:
+          type: integer
+
+    Favori:
+      type: object
+      properties:
+        id:
+          type: integer
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+
+    Actor:
+      type: object
+      properties:
+        id:
+          type: integer
+        idUser:
+          type: integer
+        address:
+          type: string
+        bio:
+          type: string
+        credits:
+          type: integer
+          default: 50
+        vote:
+          type: integer
+          default: 0
+        role:
+          type: string
+          enum:
+            - TAILOR
+            - USER
+            - VENDOR
+          default: TAILOR
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - idUser
+        - address
+        - bio
+        - role
+
+    Vente:
+      type: object
+      required:
+        - idProduit
+        - qte
+      properties:
+        idProduit:
+          type: integer
+          description: ID du produit
+          example: 1
+        qte:
+          type: integer
+          description: Quantité de produit achetée
+          example: 5
+    Repost:
+      type: object
+      properties:
+        id:
+          type: integer
+        idUser:
+          type: integer
+        idPost:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - idUser
+        - idPost
+
+    # Define schemas for other models similarly...
