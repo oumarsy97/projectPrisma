@@ -5,6 +5,7 @@ import upload from '../config/multerConfig.js';
 
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
+import Messenger from "../utils/Messenger.js";
 
 export default class ActorController {
   //create a new actor
@@ -64,6 +65,17 @@ export default class ActorController {
             votes: 0,
           },
         });
+        Messenger.sendMail(
+            newUser.email,
+            newUser.firstname,
+            "Welcome to our platform! Your account has been created successfully. You can now log in to your account."
+          );
+          Messenger.sendSms(
+            newUser.phone,
+            newUser.firstname,
+            "Welcome to our platform! Your account has been created successfully. You can now log in to your account."
+          );
+  
 
         res.json({
           message:` ${role} created successfully`,
