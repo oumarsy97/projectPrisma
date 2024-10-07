@@ -1,9 +1,11 @@
 import ActorController from "../controller/ActorController.js";
 import { Router } from "express";
+import Middleware from "../Middleware/Middleware.js";
 const router = Router();
+router.get("/monprofile", Middleware.auth, ActorController.getActorsByUserId);
 router.post("/create", ActorController.createActor);
-router.get("/getactors", ActorController.getActors);
-router.get("/getactor/:id", ActorController.getActorById);
-router.get("/deleteactor/:id", ActorController.deleteActor);
-router.put("/update/:id", ActorController.updateActor);
+router.get("/getactor", Middleware.auth, ActorController.getActors);
+router.get("/getactor/:id", Middleware.auth, ActorController.getActorById);
+router.get("/deleteactor/:id", Middleware.auth, ActorController.deleteActor);
+router.put("/update/:id", Middleware.auth, ActorController.updateActor);
 export default router;

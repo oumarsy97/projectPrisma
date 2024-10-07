@@ -34,7 +34,7 @@ export default class Messenger {
         const raw = JSON.stringify({
             "messages": [
                 {
-                    "destinations": [{ "to": "781807229" }],
+                    "destinations ": [{ "to": "781807229" }],
                     "from": "Tailor Digital",
                     "text": message
                 }
