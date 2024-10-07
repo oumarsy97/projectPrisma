@@ -58,29 +58,21 @@ model User {
   photo     String
   genre     Genre     @default(MALE)
   role      Role      @default(USER)
-  // favoris Post[] 
   likes Like[]
   dislikes Dislike[]
   comments Comment[]
- 
   reposts Repost[]
   follow Follow[]
   actor Actor[]
   ventes Vente[]
   commandes Commande[]
-  chats     Chat[] @relation("UserChats")
+  chats     Chat[]    @relation("UserChats")
   favoris   Favori[]
-
-  chatsInitiated Chat[]    @relation("UserChats", fields: [id], references: [idUser])
-  messagesSent   Message[] @relation("UserMessages", fields: [id], references: [idUser])
-
+  messagesSent   Message[] @relation("UserMessages")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   Share    Share[] @relation("SharesFromUser")
   received Share[] @relation("SharesToUser")
-  chats    Chat[]  
-
   report Report[]
   Notes Notes[]
 }
@@ -118,27 +110,29 @@ model Actor {
 }
 
 model Post {
-  id    Int @id @default(autoincrement())
-  title  String
-  description  String
-  category String
-  size SIZE @default(M)
-  content Json
-  idActor Int
-  state ArticleState @default(DRAFT)
-  notes Notes[] 
-  user  Actor @relation(fields: [idActor], references: [id])
-  likes Like[]
-  dislikes Dislike[]
-  comments Comment[]
-  tags Tag[]
-  share Share[]
-  reposts Repost[]
-  vues Int @default(0)
-  reports Report[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  favoris Favori[]
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String
+  category    String
+  size        SIZE          @default(M)
+  content     Json
+  photo       String?       // Nouveau champ pour stocker l'URL de la photo
+  idActor     Int
+  state       ArticleState  @default(DRAFT)
+  notes       Notes[] 
+  user        Actor         @relation(fields: [idActor], references: [id])
+  likes       Like[]
+  dislikes    Dislike[]
+  comments    Comment[]
+  tags        Tag[]
+  share       Share[]
+  reposts     Repost[]
+  vues        Int           @default(0)
+  reports     Report[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  favoris     Favori[]
+
   @@map("posts")
 }
 
@@ -370,7 +364,7 @@ model Chat {
   idActor   Int
   messages  Message[]
   content   Json
-  user      User      @relation(fields: [idUser], references: [id])
+  user      User      @relation("UserChats", fields: [idUser], references: [id])
   actor     Actor     @relation(fields: [idActor], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -386,6 +380,7 @@ model Message {
   seen      Boolean  @default(false)
   chatId    Int
   chat      Chat     @relation(fields: [chatId], references: [id])
+  user      User     @relation("UserMessages", fields: [sender], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

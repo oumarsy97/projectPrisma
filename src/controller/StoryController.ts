@@ -6,7 +6,6 @@ import { z } from 'zod';
 const prisma = new PrismaClient();
 
 
-
 export default class StoryController {
     static create = async (req: Request, res: Response) => {
         const userId = req.params.userId;
@@ -38,6 +37,7 @@ export default class StoryController {
       }
 
     };
+    
   static deleteStory = async (req: Request, res: Response) => {
     const { idStory } = req.params;
     const userId = req.params.userId;
@@ -68,8 +68,6 @@ export default class StoryController {
         return res.status(404).json({ message: "Story not found", data: null, status: false });
       }
 //verifier si l'utilisateur a deja vu la story
-
-      
 
       const updatedStory = await prisma.story.update({
         where: { id: Number(idStory) },
