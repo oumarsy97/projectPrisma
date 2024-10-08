@@ -39,7 +39,7 @@ export default class Messenger {
         const raw = JSON.stringify({
             "messages": [
                 {
-                    "destinations": [{"to": "781807229"}],
+                    "destinations ": [{ "to": "781807229" }],
                     "from": "Tailor Digital",
                     "text": message
                 }
@@ -58,7 +58,6 @@ export default class Messenger {
             console.error(error);
         }
     }
-
     static async sendWhatsapp(destination: string, name: string, message: string): Promise<void> {
         const myHeaders: { [key: string]: string } = {
             "Authorization": "App 6d70d8cdb5f5dcd80ad1fe005f6e6384-848c34c8-3c94-4f8c-adbf-b4fc929f2dfa",

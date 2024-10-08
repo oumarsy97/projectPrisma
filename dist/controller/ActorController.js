@@ -25,6 +25,14 @@ export default class ActorController {
                 });
             }
             ;
+            const pasword = req.body.password;
+            const confirmPassword = req.body.confirmPassword;
+            if (pasword !== confirmPassword) {
+                return res.status(400).json({
+                    message: "Passwords do not match",
+                    status: 400
+                });
+            }
             const password = Utils.hashPassword(req.body.password);
             const newUser = await prisma.user.create({
                 data: {

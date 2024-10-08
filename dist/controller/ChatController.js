@@ -49,9 +49,9 @@ const ChatController = {
             // Créer un nouveau message
             const newMessage = await prisma.message.create({
                 data: {
-                    sender: initiatorId,
+                    sender: initiatorId, // Assure-toi que 'senderId' est conforme au schéma
                     text,
-                    content: "",
+                    content: "", // Assure-toi que 'content' est conforme au schéma
                     chat: {
                         connect: { id: chat.id }, // Connecter le message au chat créé ou trouvé
                     },
