@@ -44,7 +44,7 @@ const ChatController = {
           data: {
             user: { connect: { id: initiatorId } },
             actor: { connect: { id: parseInt(recipientId) } },
-            content: [], // Assurez-vous que ce champ est correctement défini dans votre schéma
+            content: [],
           },
         });
       }
