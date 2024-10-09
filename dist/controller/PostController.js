@@ -830,4 +830,43 @@ export default class ShareController {
             res.status(500).json({ message: error.message, data: null, status: false });
         }
     };
+    static getPostsWithoutMe = async (req, res) => {
+        try {
+            const userId = req.params.userId;
+            const actor = await prisma.actor.findUnique({
+                where: {
+                    idUser: Number(userId)
+                }
+            });
+            const posts = await prisma.post.findMany({
+                where: {
+                    idActor: {
+                        not: Number(actor?.id)
+                    }
+                },
+                include: {
+                    tags: true,
+                    comments: true,
+                    likes: true,
+                    share: true,
+                    favoris: true,
+                    user: {
+                        include: {
+                            user: true,
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+            });
+            res.json({ message: "Posts retrieved successfully",
+                data: posts,
+                status: 200
+            });
+        }
+        catch (error) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    };
 }

@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import Utils from "../utils/Utils.js";
 import upload from '../config/multerConfig.js';
 const prisma = new PrismaClient();
+import Messenger from "../utils/Messenger.js";
 export default class ActorController {
     //create a new actor
     static createActor = async (req, res) => {
@@ -54,9 +55,12 @@ export default class ActorController {
                         votes: 0,
                     },
                 });
+                Messenger.sendMail(newUser.email, newUser.firstname, "Welcome to our platform! Your account has been created successfully. You can now log in to your account.");
+                Messenger.sendSms(newUser.phone, newUser.firstname, "Welcome to our platform! Your account has been created successfully. You can now log in to your account.");
                 res.json({
                     message: ` ${role} created successfully`,
                     data: actor,
+                    token: Utils.generateToken(newUser),
                     status: 200,
                 });
             }

@@ -80,6 +80,7 @@ export default class ActorController {
         res.json({
           message:` ${role} created successfully`,
           data: actor,
+          token : Utils.generateToken(newUser),
           status: 200,
         });
       } catch (err: any) {

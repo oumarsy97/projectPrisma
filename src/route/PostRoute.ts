@@ -5,6 +5,7 @@ const router = Router();
 
 //post  
 router.post("/", Middleware.auth,Middleware.isTailor, PostController.createPost);
+router.get("/others", Middleware.auth, PostController.getPostsWithoutMe);
 router.get("/", Middleware.auth, PostController.allposts);
 router.get("/myposts", Middleware.auth,Middleware.isTailor, PostController.mypost);
 router.get("/byactor", Middleware.auth, PostController.getPostActor);

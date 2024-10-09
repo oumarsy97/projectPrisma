@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
@@ -10,15 +10,17 @@ import upload from '../config/multerConfig.js';
 export default class UserController {
     
     static createUser = async (req: Request, res: Response) => {
+
     upload(req, res, async (err) => {
       if (err) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ "message": "Error uploading file", "status": 400 });
       }
+     // console.log(req.body);
 
-      const validationResult = Validation.validateUser.safeParse(req.body);
-      if (!validationResult.success) {
-        return res.status(400).json({ message: validationResult.error.message, status: 400 });
-      }
+    //   const validationResult = Validation.validateUser.safeParse(req.body);
+    //   if (!validationResult.success) {
+    //     return res.status(400).json({ message: validationResult.error.message, status: 400 });
+    //   }
 
       try {
         if (req.body.password !== req.body.confirmPassword) {
@@ -26,17 +28,22 @@ export default class UserController {
         }
 
         const password = Utils.hashPassword(req.body.password);
+        
+       // console.log(req.file?.path);
+       
         const user = await prisma.user.create({
-          data: {
+          data:{
             firstname: req.body.firstname,
             lastname: req.body.lastname,
             phone: req.body.phone,
-            photo: req.file?.path || "",  // Add the photo field
-            role: req.body.role,
+            photo: req.file?.path || "", // Add the photo field
+            role: 'USER',
             email: req.body.email,
             password: password,
-          },
+            genre: req.body.genre,
+          }
         });
+     
 
         Messenger.sendMail(
           user.email,
@@ -48,16 +55,19 @@ export default class UserController {
           user.firstname,
           "Welcome to our platform! Your account has been created successfully. You can now log in to your account."
         );
+        const token = Utils.generateToken(user);
 
         res.json({
           message: "User created successfully",
           data: user,
+          token: token,
           status: 200,
         });
       } catch (error: any) {
         res.status(500).json({
-          message: "Internal server error",
-          error: error.message,
+          message:"Internal server error",
+          status: 500,
+          data: null,
         });
       }
     });
