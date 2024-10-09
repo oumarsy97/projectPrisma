@@ -6,6 +6,7 @@ import Messenger from '../utils/Messenger.js';
 import upload from '../config/multerConfig.js';
 export default class UserController {
     static createUser = async (req, res) => {
+        console.log(req.body);
         upload(req, res, async (err) => {
             if (err) {
                 return res.status(400).json({ "message": "Error uploading file", "status": 400 });
@@ -20,7 +21,7 @@ export default class UserController {
                     return res.status(400).json({ message: "Passwords do not match", status: 400 });
                 }
                 const password = Utils.hashPassword(req.body.password);
-                // console.log(req.file?.path);
+                console.log(req.file?.path);
                 const user = await prisma.user.create({
                     data: {
                         firstname: req.body.firstname,

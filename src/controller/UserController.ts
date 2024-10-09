@@ -10,6 +10,7 @@ import upload from '../config/multerConfig.js';
 export default class UserController {
     
     static createUser = async (req: Request, res: Response) => {
+        console.log(req.body);
 
     upload(req, res, async (err) => {
       if (err) {
@@ -29,7 +30,7 @@ export default class UserController {
 
         const password = Utils.hashPassword(req.body.password);
         
-       // console.log(req.file?.path);
+        console.log(req.file?.path);
        
         const user = await prisma.user.create({
           data:{

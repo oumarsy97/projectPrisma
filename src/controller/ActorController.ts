@@ -199,7 +199,19 @@ export default class ActorController {
     const userId = req.params.userId; // Ou req.params.id si tu utilises des paramètres d'URL
     try {
         // Logic pour récupérer les données de l'acteur par userId
-        const actor = await prisma.actor.findUnique( { where: { idUser: parseInt(userId) } }); // Exemple de requête
+        const actor = await prisma.actor.findUnique( { where: { idUser: parseInt(userId) }, 
+      include: { user: true,
+        follow: true,
+        posts: {
+          include: {
+            likes: true,
+            comments: true,
+            share : true
+          },
+        },
+
+       },
+      }); // Exemple de requête
         if (!actor) {
             return res.status(404).json({ message: 'Aucun acteur trouvé', status: 404,data : null });
         }
