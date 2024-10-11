@@ -421,6 +421,7 @@ static createPost = async (req: Request, res: Response) => {
       if (err) {
         return res.status(400).json({ message: err.message });
       }
+      console.log(req?.file?.path);
 
       try {
         const userId = req.params.userId;
@@ -444,13 +445,14 @@ static createPost = async (req: Request, res: Response) => {
           return res
             .status(400)
             .json({ message: "Actor does not have enough credits" });
-        }
+        } 
 
         const newPost = await prisma.post.create({
           data: {
             idActor: Number(actor.id),
             title: req.body.title,
             category: req.body.category,
+            size: req.body.size,
             description: req.body.description,
             photo: req.file?.path || '', // Utilisez null au lieu d'une chaîne vide si aucune photo n'est téléchargée
           },
@@ -535,7 +537,26 @@ static mypost = async (req:Request,res:Response) => {
 
 static allposts = async (req:Request,res:Response) => {
     try {
-        const posts = await prisma.post.findMany();
+        const posts = await prisma.post.findMany({
+            include: {
+                tags: true,
+                comments: true,
+                likes: true,
+                share: true,
+                favoris: true,
+                user: {
+                    
+                    include: {
+                        user: true,
+                
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            },
+            
+        });
         res.json({ message: "Posts retrieved successfully",
             data: posts,
             status: 200

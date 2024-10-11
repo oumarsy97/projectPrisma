@@ -209,6 +209,13 @@ export default class ActorController {
             share : true
           },
         },
+        produits: {
+          include: {
+            notes: true,
+
+          },
+        },
+        
 
        },
       }); // Exemple de requête

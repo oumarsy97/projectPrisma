@@ -394,6 +394,7 @@ export default class ShareController {
             if (err) {
                 return res.status(400).json({ message: err.message });
             }
+            console.log(req?.file?.path);
             try {
                 const userId = req.params.userId;
                 const user = await prisma.user.findUnique({
@@ -418,6 +419,7 @@ export default class ShareController {
                         idActor: Number(actor.id),
                         title: req.body.title,
                         category: req.body.category,
+                        size: req.body.size,
                         description: req.body.description,
                         photo: req.file?.path || '', // Utilisez null au lieu d'une chaîne vide si aucune photo n'est téléchargée
                     },
@@ -500,7 +502,23 @@ export default class ShareController {
     };
     static allposts = async (req, res) => {
         try {
-            const posts = await prisma.post.findMany();
+            const posts = await prisma.post.findMany({
+                include: {
+                    tags: true,
+                    comments: true,
+                    likes: true,
+                    share: true,
+                    favoris: true,
+                    user: {
+                        include: {
+                            user: true,
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+            });
             res.json({ message: "Posts retrieved successfully",
                 data: posts,
                 status: 200

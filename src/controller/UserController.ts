@@ -239,22 +239,29 @@ export default class UserController {
         try {
             // Supposons que l'ID de l'utilisateur connecté est disponible dans req.user.id
             const idUser = req.params.userId;
-            
+            console.log(idUser);
+
             const user = await prisma.user.findUnique({ where: { id: Number(idUser) } });
+            
             if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
+
+            const actor = await prisma.actor.findUnique({ where: { idUser: Number(idUser) } });
+            if (!actor) return res.status(404).json({ message: "Actor not found", data: null, status: 404 });
            
             const { montant } = req.body;
-    
+            
             if (montant < 100) return res.status(400).json({ message: "Montant invalide", data: null, status: 400 });
+          
     
            
     
             const newCode = await prisma.generateCode.create({ data:{
-                price: montant,
+                price: +montant,
                 code: Utils.generateRandomNumber(12), 
                 credit: montant / 100,
             }
              });
+             console.log(newCode);
     
             const recu = `Recu Montant : ${newCode.price} Code : ${newCode.code}Credits : ${newCode.credit} Date : ${newCode.createdAt} expire dans 7 jours`;        
             

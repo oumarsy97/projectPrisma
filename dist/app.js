@@ -13,8 +13,12 @@ import ActorRoute from './route/ActorRoute.js';
 import RepostRoute from './route/RepostRoute.js';
 import VenteRoute from './route/VenteRoute.js';
 import ChatRoute from './route/ChatRoute.js';
+import ProduitRoute from './route/ProduitRoute.js';
+import bodyParser from 'body-parser';
 const app = express();
 app.use(express.json());
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 // Middleware for parsing JSON bodies
 // app.use(express.json()); 
 // Configurez CORS
@@ -32,6 +36,7 @@ app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);
 app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/ventes`, VenteRoute);
 app.use(`${process.env.BASE_URL}/chat`, ChatRoute);
+app.use(`${process.env.BASE_URL}/produits`, ProduitRoute);
 const prisma = new PrismaClient();
 // Fonction pour supprimer les histoires plus anciennes que 3 minutes
 const deleteOldStories = async () => {

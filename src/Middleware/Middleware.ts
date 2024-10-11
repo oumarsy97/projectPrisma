@@ -8,7 +8,8 @@ export default class Middleware {
 
     static auth = (req: Request, res: Response, next: NextFunction) => {
         const entete = req.headers.authorization;
-        let token;
+        let token; 
+        
        if(entete){
             token = entete.split(" ")[1];
        }else{

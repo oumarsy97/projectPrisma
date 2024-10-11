@@ -4,6 +4,8 @@ import Middleware from '../Middleware/Middleware.js';
 const router = Router();
 // Routes pour les produits
 router.post('/', Middleware.auth, Middleware.isVendor, ProduitController.addProduit);
+router.get('/others', Middleware.auth, ProduitController.otherProduits);
+router.get('/', ProduitController.getAllProduits);
 router.put('/:id', Middleware.auth, Middleware.isVendor, ProduitController.updateProduit);
 router.get('/:id', Middleware.auth, ProduitController.findProduit);
 router.get('/user/:idUser', Middleware.auth, ProduitController.findProduitUser);

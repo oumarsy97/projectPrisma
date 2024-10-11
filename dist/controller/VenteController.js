@@ -92,6 +92,7 @@ export default class VenteController {
             res.status(201).json({
                 message: "Vente created successfully",
                 data: newVente,
+                status: 201,
             });
         }
         catch (error) {
