@@ -301,19 +301,19 @@ export default class UserController {
         } catch (error: any) {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
         }
-    };
+    }; 
 
     //become tailor
     static becomeTailor = async (req: Request, res: Response) => {
-        try {
+        try { 
+            console.log('req.body', req.body);
             const idUser = req.params.userId;
+            console.log('idUser', idUser);
             if (!idUser) {
                 return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
             }
             const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
             if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
-            const tailor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
-            if (!tailor) return res.status(404).json({ message: "Tailor not found", data: null, status: 404 });
             const newTailor = await prisma.actor.create({
                 data: {
                     idUser: parseInt(idUser),
@@ -323,9 +323,24 @@ export default class UserController {
                     role: "TAILOR",
                     votes: 0
                 },
-                include: {
-                    user: true
-                }
+                include: { user: true,
+                    follow: true,
+                    posts: {
+                      include: {
+                        likes: true,
+                        comments: true,
+                        share : true
+                      },
+                    },
+                    produits: {
+                      include: {
+                        notes: true,
+            
+                      },
+                    },
+                    
+            
+                   },
                 
             })
            await prisma.user.update({
@@ -352,9 +367,7 @@ export default class UserController {
             }
             const user = await prisma.user.findUnique({ where: { id: parseInt(idUser) } });
             if (!user) return res.status(404).json({ message: "User not found", data: null, status: 404 });
-            const vendor = await prisma.actor.findUnique({ where: { idUser: parseInt(idUser) } });
-            if (!vendor) return res.status(404).json({ message: "Vendor not found", data: null, status: 404 });
-            const newVendor = await prisma.actor.create({
+           const newVendor = await prisma.actor.create({
                 data: {
                     idUser: parseInt(idUser),
                     address: req.body.address,
@@ -362,9 +375,24 @@ export default class UserController {
                     role: "VENDOR",
                     votes: 0
                 },
-                include: {
-                    user: true
-                }
+                include: { user: true,
+                    follow: true,
+                    posts: {
+                      include: {
+                        likes: true,
+                        comments: true,
+                        share : true
+                      },
+                    },
+                    produits: {
+                      include: {
+                        notes: true,
+            
+                      },
+                    },
+                    
+            
+                   },
                 
             })
             const updateUser = await prisma.user.update({
