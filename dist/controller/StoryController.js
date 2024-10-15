@@ -13,6 +13,9 @@ export default class StoryController {
             if (!actor) {
                 return res.status(404).json({ message: "Actor not found", data: null, status: false });
             }
+            if (actor.credits < 2) {
+                return res.status(400).json({ message: "Actor does not have enough credits", data: null, status: false });
+            }
             const idActory = actor.id;
             const newStory = await prisma.story.create({
                 data: {
@@ -20,6 +23,14 @@ export default class StoryController {
                     description,
                     photo, // This field is always a string
                     idActory,
+                },
+            });
+            await prisma.actor.update({
+                where: { id: idActory },
+                data: {
+                    credits: {
+                        decrement: 2
+                    }
                 },
             });
             res.status(201).json({ message: "Story created successfully", data: newStory, status: true });
@@ -95,7 +106,14 @@ export default class StoryController {
             if (!actor) {
                 return res.status(404).json({ message: "Actor not found", data: null, status: false });
             }
-            const stories = await prisma.story.findMany({ where: { idActory: actor.id } });
+            const stories = await prisma.story.findMany({ where: { idActory: actor.id },
+                include: {
+                    actor: {
+                        include: {
+                            user: true
+                        }
+                    }
+                } });
             res.status(200).json({ message: "Stories fetched successfully", data: stories, status: true });
         }
         catch (error) {

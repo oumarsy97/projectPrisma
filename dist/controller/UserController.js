@@ -6,7 +6,6 @@ import Messenger from '../utils/Messenger.js';
 import upload from '../config/multerConfig.js';
 export default class UserController {
     static createUser = async (req, res) => {
-        console.log(req.body);
         upload(req, res, async (err) => {
             if (err) {
                 return res.status(400).json({ "message": "Error uploading file", "status": 400 });
@@ -21,7 +20,6 @@ export default class UserController {
                     return res.status(400).json({ message: "Passwords do not match", status: 400 });
                 }
                 const password = Utils.hashPassword(req.body.password);
-                console.log(req.file?.path);
                 const user = await prisma.user.create({
                     data: {
                         firstname: req.body.firstname,
@@ -124,16 +122,17 @@ export default class UserController {
             });
             if (!user) {
                 res.json({ message: "User not found", status: 404, data: null });
+                return;
             }
             if (user && Utils.comparePassword(req.body.password, user.password)) {
                 const token = Utils.generateToken(user);
-                res.status(200).json({ message: "User logged in successfully",
+                return res.status(200).json({ message: "User logged in successfully",
                     token: token,
                     status: 200
                 });
             }
             else {
-                res.status(401).json({ message: "Email or password is incorrect",
+                return res.status(401).json({ message: "Email or password is incorrect",
                     status: 401
                 });
             }
@@ -148,12 +147,16 @@ export default class UserController {
     static getUser = async (req, res) => {
         const idUser = req.params.userId;
         if (!idUser) {
-            return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+            res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
+            return;
         }
         try {
             const user = await prisma.user.findUnique({
                 where: {
                     id: Number(idUser)
+                },
+                include: {
+                    follow: true
                 }
             });
             res.json({ message: "User fetched successfully",
@@ -208,7 +211,6 @@ export default class UserController {
         try {
             // Supposons que l'ID de l'utilisateur connecté est disponible dans req.user.id
             const idUser = req.params.userId;
-            console.log(idUser);
             const user = await prisma.user.findUnique({ where: { id: Number(idUser) } });
             if (!user)
                 return res.status(404).json({ message: "User not found", data: null, status: 404 });
@@ -224,7 +226,6 @@ export default class UserController {
                     credit: montant / 100,
                 }
             });
-            console.log(newCode);
             const recu = `Recu Montant : ${newCode.price} Code : ${newCode.code}Credits : ${newCode.credit} Date : ${newCode.createdAt} expire dans 7 jours`;
             // Envoi du SMS et email via Messenger
             if (user.phone) {
@@ -247,7 +248,6 @@ export default class UserController {
     static getCredits = async (req, res) => {
         try {
             const idUser = req.params.userId;
-            console.log('idUser', idUser);
             if (!idUser) {
                 return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
             }
@@ -266,9 +266,7 @@ export default class UserController {
     //become tailor
     static becomeTailor = async (req, res) => {
         try {
-            console.log('req.body', req.body);
             const idUser = req.params.userId;
-            console.log('idUser', idUser);
             if (!idUser) {
                 return res.status(400).json({ message: "Invalid user ID", data: null, status: 400 });
             }

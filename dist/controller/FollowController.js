@@ -10,12 +10,12 @@ class FollowController {
     // Suivre un utilisateur
     static follow = async (req, res) => {
         const idUser = req.params.userId;
-        const idActor = req.body.idActor;
+        const idActor = req.params.idActor;
         // Valider les données d'entrée
-        const validation = followSchema.safeParse({ idActor });
-        if (!validation.success) {
-            return res.status(400).json({ error: validation.error.errors[0].message });
-        }
+        // const validation = followSchema.safeParse({ idActor });
+        // if (!validation.success) {
+        //     return res.status(400).json({ error: validation.error.errors[0].message });
+        // }
         try {
             if (!idUser) {
                 return res.status(401).json({ error: "Non autorisé" });
@@ -25,7 +25,7 @@ class FollowController {
             }
             const follower = await prisma.follow.findFirst({ where: {
                     idUser: +idUser,
-                    idActor: idActor
+                    idActor: +idActor
                 } });
             if (follower) {
                 const deleteFollow = await prisma.follow.delete({
@@ -35,7 +35,7 @@ class FollowController {
                 });
                 res.status(200).json({
                     message: "Relation de suivi supprimée",
-                    data: deleteFollow,
+                    data: null,
                     status: true
                 });
                 return;
@@ -43,7 +43,7 @@ class FollowController {
             const follow = await prisma.follow.create({
                 data: {
                     idUser: +idUser,
-                    idActor: idActor
+                    idActor: +idActor
                 },
             });
             res.status(201).json({

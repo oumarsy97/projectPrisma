@@ -21,15 +21,18 @@ export default class Middleware {
             if (decoded) {
                 req.params.userId = (decoded as any).id;
                 next();
+                return;
             }
             else {
-                res.status(401).json({ message: "token not valid" });
+                return res.status(401).json({ message: "token not valid" });
+                
             }
         }
         else {
-            res.status(401).json({ message: "token not found" });
+            return res.status(401).json({ message: "token not found" });
+            
         }
-    }
+    } 
 
     static isTailor = async (req: Request, res: Response, next: NextFunction) => {
         const idUser = req.params.userId;
@@ -39,7 +42,7 @@ export default class Middleware {
             }
         });
         if (user?.role === "TAILOR") {
-            next();
+            next(); 
         }
         else {
             res.status(401).json({ message: "you are not a tailor" });

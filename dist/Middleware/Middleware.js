@@ -16,13 +16,14 @@ export default class Middleware {
             if (decoded) {
                 req.params.userId = decoded.id;
                 next();
+                return;
             }
             else {
-                res.status(401).json({ message: "token not valid" });
+                return res.status(401).json({ message: "token not valid" });
             }
         }
         else {
-            res.status(401).json({ message: "token not found" });
+            return res.status(401).json({ message: "token not found" });
         }
     };
     static isTailor = async (req, res, next) => {

@@ -42,7 +42,7 @@ const prisma = new PrismaClient();
 const deleteOldStories = async () => {
     console.log('Attempting to delete old stories...');
     try {
-        const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 60 * 60 * 1000); // 3 minutes ago
+        const threeMinutesAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 3 minutes ago
         const result = await prisma.story.deleteMany({
             where: {
                 createdAt: {
@@ -58,7 +58,7 @@ const deleteOldStories = async () => {
     console.log('Finished attempting to delete old stories.');
 };
 // Planifiez la tâche pour s'exécuter toutes les minutes
-cron.schedule('* * * * *', () => {
+cron.schedule('0 * * * *', () => {
     console.log('Checking for old stories to delete...');
     deleteOldStories();
 });

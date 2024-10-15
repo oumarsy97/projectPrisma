@@ -172,7 +172,7 @@ export default class ShareController {
 static likePost = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
-        const postId = req.body.postId;
+        const postId = req.params.postId;
         const user = await prisma.user.findUnique({
             where: {
                 id: Number(userId)
@@ -205,7 +205,8 @@ static likePost = async (req: Request, res: Response) => {
                 }
             })
             return res.status(200).json({ message: "Like removed successfully",
-                status: 200
+                status: 200,
+                data: null
             });
         }
         const newlike = await prisma.like.create({
@@ -284,7 +285,8 @@ static dislikePost = async (req: Request, res: Response) => {
 
 //comment 
 static commentPost = async (req: Request, res: Response) => {
-    try {
+    try {  
+        
         const userId = req.params.userId;
         const postId = req.params.postId;
         const user = await prisma.user.findUnique({
@@ -357,6 +359,7 @@ static deleteComment = async (req: Request, res: Response) => {
 
 }
 
+
 static updateComment = async (req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
@@ -404,7 +407,12 @@ static getComments = async (req: Request, res: Response) => {
         const comments = await prisma.comment.findMany({
             where: {
                 idPost: Number(postId),
+            },
+            include: {
+                author: true
+            
             }
+
         });
         res.json({ message: "Comments retrieved successfully",
             data: comments,

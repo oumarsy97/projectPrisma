@@ -367,7 +367,6 @@ export default class ProduitController {
     //others's produits 
     static otherProduits = async (req, res) => {
         const idUser = Number(req.params.userId);
-        console.log("idUser", idUser);
         const actor = await prisma.actor.findUnique({
             where: {
                 idUser: +idUser

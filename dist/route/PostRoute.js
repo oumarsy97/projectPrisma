@@ -2,6 +2,8 @@ import { Router } from "express";
 import Middleware from "../Middleware/Middleware.js";
 import PostController from "../controller/PostController.js";
 const router = Router();
+//like
+router.post("/like/:postId", Middleware.auth, PostController.likePost);
 //post  
 router.post("/", Middleware.auth, Middleware.isTailor, PostController.createPost);
 router.get("/others", Middleware.auth, PostController.getPostsWithoutMe);
