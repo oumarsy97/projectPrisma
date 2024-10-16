@@ -70,8 +70,9 @@ app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/follow`, FollowRoute); // Add Follow routes
 app.use(`${process.env.BASE_URL}/story`, StoryRoute); // Add Story routes
 // Start the server
-app.listen(Number(process.env.PORT), () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
-    console.log(`Swagger documentation available at http://localhost:${process.env.PORT}/api-docs`);
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+    console.log(`Swagger documentation available at http://localhost:${port}/api-docs`);
     console.log('Scheduled task for deleting old stories has started.');
 });
