@@ -201,8 +201,14 @@ export default class UserController {
                 id: Number(idUser)
             },
             include: {
-                follow:true
+                follow:true,
+                favoris:{
+                    include: {
+                        post: true
+                    }
+                }
             } 
+            
         });
         res.json({message: "User fetched successfully",
             data: user,
