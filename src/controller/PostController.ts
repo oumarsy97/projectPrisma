@@ -286,7 +286,7 @@ static dislikePost = async (req: Request, res: Response) => {
 //comment 
 static commentPost = async (req: Request, res: Response) => {
     try {  
-        
+
         const userId = req.params.userId;
         const postId = req.params.postId;
         const user = await prisma.user.findUnique({
@@ -855,6 +855,9 @@ static getfavoris = async (req:Request,res:Response) => {
         const favoris = await prisma.favori.findMany({
             where: {
                 idUser: Number(userId)
+            },
+            include: {
+                post: true
             }
         });
         res.json({ message: "Favoris retrieved successfully",

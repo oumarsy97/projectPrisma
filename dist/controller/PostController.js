@@ -791,6 +791,9 @@ export default class ShareController {
             const favoris = await prisma.favori.findMany({
                 where: {
                     idUser: Number(userId)
+                },
+                include: {
+                    post: true
                 }
             });
             res.json({ message: "Favoris retrieved successfully",

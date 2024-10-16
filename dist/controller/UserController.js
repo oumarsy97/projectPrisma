@@ -71,6 +71,21 @@ export default class UserController {
             const user = await prisma.user.findUnique({
                 where: {
                     id: Number(req.params.id)
+                },
+                include: {
+                    actor: {
+                        include: {
+                            follow: true,
+                            posts: {
+                                include: {
+                                    likes: true,
+                                    comments: true,
+                                    share: true
+                                },
+                            },
+                            produits: true,
+                        }
+                    },
                 }
             });
             res.json({ message: "User retrieved successfully",
@@ -356,6 +371,38 @@ export default class UserController {
         }
         catch (error) {
             res.status(500).json({ message: error.message || "An error occurred", data: null, status: 500 });
+        }
+    };
+    static search = async (req, res) => {
+        try {
+            const name = req.params.name;
+            // Vérifier si un nom a été fourni
+            if (!name) {
+                return res.status(400).json({ message: "Invalid name", data: null, status: 400 });
+            }
+            // Recherche progressive sur plusieurs champs (firstname, lastname, email, phone)
+            const result = await prisma.user.findMany({
+                where: {
+                    OR: [
+                        { firstname: { contains: name, mode: 'insensitive' } },
+                        { lastname: { contains: name, mode: 'insensitive' } },
+                        { email: { contains: name, mode: 'insensitive' } },
+                        { phone: { contains: name } }
+                    ]
+                },
+                include: {
+                    actor: true,
+                    follow: true,
+                    Notes: true
+                }
+            });
+            // Réponse avec les résultats de la recherche
+            return res.status(200).json({ message: "Search results", data: result, status: 200 });
+        }
+        catch (error) {
+            // Gérer les erreurs
+            console.error(error);
+            return res.status(500).json({ message: "Internal Server Error", data: null, status: 500 });
         }
     };
 }

@@ -8,6 +8,7 @@ router.post("/becomevendor",Middleware.auth ,UserController.becomeVendor);
 router.get("/monprofile",Middleware.auth,UserController.getUser); 
 router.post("/login", UserController.login);
 router.get("/credits", Middleware.auth,Middleware.isActor, UserController.getCredits);
+router.get("/search/:name", UserController.search);
 router.post("/", UserController.createUser);
  router.get("/", UserController.getAllUsers);
  router.get("/:id", UserController.getUserById);
