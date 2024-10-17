@@ -1,248 +1,66 @@
-import { PrismaClient } from "@prisma/client";
+import expressLib from 'express';
+import { PrismaClient } from '@prisma/client';
+import { Server as SocketIOServer } from 'socket.io';
+import http from 'http';
 const prisma = new PrismaClient();
+const app = expressLib();
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+const users = new Map();
 const ChatController = {
+    // Fonction pour créer un chat et envoyer un message
     createChatAndSendMessage: async (req, res) => {
-        const { recipientId, text } = req.body;
-        const initiatorId = parseInt(req.params.userId);
+        const { idUser, idActor } = req.params;
+        const { message } = req.body;
+        const io = req.io;
         try {
             // Vérifier si les utilisateurs existent
-            const initiator = await prisma.user.findUnique({
-                where: { id: initiatorId },
-            });
-            const recipient = await prisma.user.findUnique({
-                where: { id: parseInt(recipientId) },
-            });
-            const actor = await prisma.actor.findUnique({
-                where: { idUser: parseInt(recipientId) },
-            });
-            if (!initiator || !recipient || !actor) {
-                return res.status(404).json({
-                    message: "Utilisateur, destinataire ou acteur non trouvé",
-                    status: false,
-                });
+            const user = await prisma.user.findUnique({ where: { id: +idUser } });
+            const actor = await prisma.actor.findUnique({ where: { id: +idActor } });
+            if (!user || !actor) {
+                return res.status(404).json({ message: "Utilisateur non trouvé", status: false });
             }
-            // Trouver ou créer une discussion existante entre l'initiateur et le destinataire
-            let chat = await prisma.chat.findFirst({
+            const chat = await prisma.chat.create({
+                data: {
+                    user: { connect: { id: +idUser } },
+                    actor: { connect: { id: +idActor } },
+                    message: message, // Assurez-vous que ce champ est bien défini dans le schéma Prisma
+                },
+            });
+            // Transmettre le message à l'utilisateur destinataire en temps réel
+            io.to(idUser).emit("message", req.body);
+            io.to(idActor).emit("message", req.body);
+            return res.status(200).json({ message: "Message envoyé", status: true, data: chat });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Une erreur est survenue", status: false, data: null });
+        }
+    },
+    //get chat by id user and id actor
+    getChatById: async (req, res) => {
+        const { userID, idActor } = req.params;
+        try {
+            const chat = await prisma.chat.findMany({
                 where: {
                     OR: [
-                        { idUser: initiatorId, idActor: parseInt(recipientId) },
-                        { idUser: parseInt(recipientId), idActor: initiatorId },
+                        { idUser: +userID, idActor: +idActor },
+                        { idUser: +idActor, idActor: +userID },
                     ],
                 },
             });
-            if (!chat) {
-                chat = await prisma.chat.create({
-                    data: {
-                        user: { connect: { id: initiatorId } },
-                        actor: { connect: { id: parseInt(recipientId) } },
-                        content: [], // Assurez-vous que ce champ est correctement défini dans votre schéma
-                    },
-                });
-            }
-            // Vérifier si la création du chat a échoué
-            if (!chat) {
-                return res.status(500).json({
-                    message: "Échec de la création ou de la récupération du chat",
-                    status: false,
-                });
-            }
-            // Créer un nouveau message
-            const newMessage = await prisma.message.create({
-                data: {
-                    sender: initiatorId, // Assure-toi que 'senderId' est conforme au schéma
-                    text,
-                    content: "", // Assure-toi que 'content' est conforme au schéma
-                    chat: {
-                        connect: { id: chat.id }, // Connecter le message au chat créé ou trouvé
-                    },
-                },
-                include: {
-                    chat: true,
-                },
-            });
-            return res.status(200).json({
-                message: "Message envoyé avec succès",
-                data: { chat, message: newMessage },
-                status: true,
-            });
+            return res.status(200).json({ message: "Chats rechérchés", status: true, data: chat });
         }
         catch (error) {
-            // Ajoute des logs pour déboguer
-            console.error("Erreur:", error);
-            return res.status(400).json({
-                message: error.message,
-                data: null,
-                status: false,
-            });
-        }
-    },
-    getChatMessages: async (req, res) => {
-        const { chatId } = req.params;
-        try {
-            const chat = await prisma.chat.findUnique({
-                where: { id: parseInt(chatId) },
-                include: { messages: true },
-            });
-            if (!chat) {
-                return res.status(404).json({
-                    message: "Discussion non trouvée",
-                    status: false,
-                });
-            }
-            return res.status(200).json({
-                message: "Messages récupérés avec succès",
-                data: chat.messages,
-                status: true,
-            });
-        }
-        catch (error) {
-            return res.status(400).json({
-                message: error.message,
-                data: null,
-                status: false,
-            });
-        }
-    },
-    markMessageAsSeen: async (req, res) => {
-        const { chatId, messageId } = req.body;
-        try {
-            const chat = await prisma.chat.findUnique({
-                where: { id: parseInt(chatId) },
-            });
-            if (!chat) {
-                return res.status(404).json({
-                    message: "Discussion non trouvée",
-                    status: false,
-                });
-            }
-            const message = await prisma.message.update({
-                where: { id: parseInt(messageId) },
-                data: { seen: true },
-            });
-            if (!message) {
-                return res.status(404).json({
-                    message: "Message non trouvé",
-                    status: false,
-                });
-            }
-            return res.status(200).json({
-                message: "Message marqué comme lu",
-                status: true,
-            });
-        }
-        catch (error) {
-            return res.status(400).json({
-                message: error.message,
-                data: null,
-                status: false,
-            });
-        }
-    },
-    updateMessage: async (req, res) => {
-        const { chatId, messageId } = req.params;
-        const { content, text } = req.body;
-        const userId = parseInt(req.params.userId);
-        try {
-            const chat = await prisma.chat.findUnique({
-                where: { id: parseInt(chatId) },
-            });
-            if (!chat) {
-                return res.status(404).json({
-                    message: "Discussion non trouvée",
-                    status: false,
-                });
-            }
-            const messageToUpdate = await prisma.message.findUnique({
-                where: { id: parseInt(messageId) },
-            });
-            if (!messageToUpdate) {
-                return res.status(404).json({
-                    message: "Message non trouvé",
-                    status: false,
-                });
-            }
-            // Vérifier que l'utilisateur est l'expéditeur du message et que le message a été envoyé dans les 2 dernières heures
-            if (messageToUpdate.sender !== userId ||
-                Date.now() - messageToUpdate.createdAt.getTime() > 2 * 60 * 60 * 1000) {
-                return res.status(403).json({
-                    message: "Modification non autorisée",
-                    status: false,
-                });
-            }
-            const updatedMessage = await prisma.message.update({
-                where: { id: parseInt(messageId) },
-                data: {
-                    content,
-                    text,
-                },
-            });
-            return res.status(200).json({
-                message: "Message mis à jour avec succès",
-                data: updatedMessage,
-                status: true,
-            });
-        }
-        catch (error) {
-            return res.status(400).json({
-                message: error.message,
-                data: null,
-                status: false,
-            });
-        }
-    },
-    deleteMessage: async (req, res) => {
-        const { chatId, messageId } = req.params;
-        const userId = parseInt(req.params.userId);
-        try {
-            const chat = await prisma.chat.findUnique({
-                where: { id: parseInt(chatId) },
-            });
-            if (!chat) {
-                return res.status(404).json({
-                    message: "Discussion non trouvée",
-                    status: false,
-                });
-            }
-            const messageToDelete = await prisma.message.findUnique({
-                where: { id: parseInt(messageId) },
-            });
-            if (!messageToDelete) {
-                return res.status(404).json({
-                    message: "Message non trouvé",
-                    status: false,
-                });
-            }
-            // Vérifier que l'utilisateur est l'expéditeur du message et que le message a été envoyé dans les 2 dernières heures
-            if (messageToDelete.sender !== userId ||
-                Date.now() - messageToDelete.createdAt.getTime() > 2 * 60 * 60 * 1000) {
-                return res.status(403).json({
-                    message: "Suppression non autorisée",
-                    status: false,
-                });
-            }
-            // Supprimer le message de la discussion
-            await prisma.chat.update({
-                where: { id: chat.id },
-                data: {
-                    messages: {
-                        disconnect: { id: messageToDelete.id },
-                    },
-                },
-            });
-            // Supprimer le message de la base de données
-            await prisma.message.delete({ where: { id: messageToDelete.id } });
-            return res.status(200).json({
-                message: "Message supprimé avec succès",
-                status: true,
-            });
-        }
-        catch (error) {
-            return res.status(400).json({
-                message: error.message,
-                data: null,
-                status: false,
-            });
+            console.error(error);
+            return res.status(500).json({ message: "Une erreur est survenue", status: false, data: null });
         }
     },
 };
 export default ChatController;
+// Créer et sauvegarder le message dans la base de données
+// Transmettre le message à l'utilisateur destinataire en temps réel

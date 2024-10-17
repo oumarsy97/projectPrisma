@@ -871,8 +871,8 @@ export default class ShareController {
                 },
                 include: {
                     tags: true,
-                    comments: true,
                     likes: true,
+                    comments: true,
                     share: true,
                     favoris: true,
                     user: {

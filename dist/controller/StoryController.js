@@ -146,6 +146,13 @@ export default class StoryController {
                     idActory: {
                         in: followedActorIds
                     }
+                },
+                include: {
+                    actor: {
+                        include: {
+                            user: true
+                        }
+                    }
                 }
             });
             res.status(200).json({ message: "Stories fetched successfully", data: stories, status: true });

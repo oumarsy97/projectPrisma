@@ -173,6 +173,13 @@ export default class StoryController {
           idActory: {
             in: followedActorIds
           }
+        },
+        include: {
+          actor: {
+            include: {
+              user: true
+            }
+          }
         }
       });
 

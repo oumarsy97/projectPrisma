@@ -132,7 +132,31 @@ export default class RepostController{
     //get all repost
     static getAllRepost = async (req: Request, res: Response)=>{
         try {
-            const reposts = await prisma.repost.findMany();
+            const reposts = await prisma.repost.findMany({
+                include: {
+                    user: true,
+                    post: {
+                        include: {
+                            tags: true,
+                            likes: true,
+                            comments: true,
+                            share: true,
+                            favoris: true,
+                            user: {
+                                
+                                include: {
+                                    user: true,
+                            
+                                }
+                            }
+                        },
+                        
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+            });
             res.json({
                 message: "Reposts récupérés avec succès",
                 data: reposts,

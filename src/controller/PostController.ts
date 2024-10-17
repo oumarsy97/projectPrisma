@@ -939,8 +939,8 @@ static getPostsWithoutMe = async (req: Request, res: Response) => {
             },
             include: {
                 tags: true,
-                comments: true,
                 likes: true,
+                comments: true,
                 share: true,
                 favoris: true,
                 user: {
