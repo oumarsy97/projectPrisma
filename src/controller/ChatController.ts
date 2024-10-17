@@ -4,22 +4,22 @@ import { Server as SocketIOServer } from 'socket.io';
 import http, { get } from 'http';
 
 const prisma = new PrismaClient();
-const app = expressLib();
-const server = http.createServer(app);
-const io = new SocketIOServer(server);
+// const app = expressLib();
+// const server = http.createServer(app);
+// const io = new SocketIOServer(server);
 
-app.use((req: Request, res: Response, next) => {
-  (req as any).io = io;
-  next();
-}); 
-const users = new Map();
+// app.use((req: Request, res: Response, next) => {
+//   (req as any).io = io;
+//   next();
+// }); 
+// const users = new Map();
 
 const ChatController = {
   // Fonction pour créer un chat et envoyer un message
   createChatAndSendMessage: async (req: Request, res: Response) => {
     const { idUser, idActor } = req.params;
     const { message  } = req.body;
-    const io = (req as any).io;
+    // const io = (req as any).io;
   
     try {
       // Vérifier si les utilisateurs existent
@@ -42,8 +42,8 @@ const ChatController = {
 
       // Transmettre le message à l'utilisateur destinataire en temps réel
       
-      io.to(idUser).emit("message", req.body);
-      io.to(idActor).emit("message", req.body);
+      // io.to(idUser).emit("message", req.body);
+      // io.to(idActor).emit("message", req.body);
       return res.status(200).json({ message: "Message envoyé", status: true, data: chat });
     } catch (error) {
       console.error(error);

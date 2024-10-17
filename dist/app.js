@@ -1,10 +1,7 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import cron from 'node-cron';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import http from 'http';
-import { Server as SocketIO } from 'socket.io';
 import bodyParser from 'body-parser';
 // Importez vos routes
 import UserRoute from './route/UserRoute.js';
@@ -18,14 +15,6 @@ import ChatRoute from './route/ChatRoute.js';
 import ProduitRoute from './route/ProduitRoute.js';
 dotenv.config();
 const app = express();
-const server = http.createServer(app);
-const io = new SocketIO(server, {
-    cors: {
-        origin: "*", // Assurez-vous d'ajuster ceci en production
-        methods: ["GET", "POST"]
-    }
-});
-const prisma = new PrismaClient();
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -51,21 +40,6 @@ const deleteOldStories = async () => {
 cron.schedule('0 * * * *', () => {
     console.log('Checking for old stories to delete...');
     deleteOldStories();
-});
-// Gestion des connexions Socket.IO
-const users = new Map();
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-    socket.on('user_connect', (userId) => {
-        users.set(socket.id, userId);
-        socket.join(`user_${userId}`);
-        console.log(`User ${userId} connected and joined room user_${userId}`);
-    });
-    socket.on('disconnect', () => {
-        const userId = users.get(socket.id);
-        users.delete(socket.id);
-        console.log(`User ${userId} disconnected`);
-    });
 });
 // Démarrez le serveur
 const PORT = process.env.PORT || 5000;
