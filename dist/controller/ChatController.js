@@ -56,6 +56,9 @@ const ChatController = {
                         connect: { id: chat.id }, // Connecter le message au chat créé ou trouvé
                     },
                 },
+                include: {
+                    chat: true,
+                },
             });
             return res.status(200).json({
                 message: "Message envoyé avec succès",

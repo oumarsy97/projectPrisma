@@ -122,7 +122,7 @@ model Post {
   description  String
   category String
   size SIZE @default(M)
-  content Json
+  photo String
   idActor Int
   state ArticleState @default(DRAFT)
   notes Notes[] 

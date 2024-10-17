@@ -18,6 +18,9 @@ export default class ProduitController {
             const actor = await prisma.actor.findUnique({
                 where: { idUser: idUser }
             });
+            if (actor?.role !== "VENDOR") {
+                return res.status(400).json({ message: "Only vendors can add products", status: 400 });
+            }
             const credit = actor?.credits || 0;
             if (credit < 10) {
                 return res.status(400).json({ message: "Le nombre de credit est insuffisant", status: 400 });

@@ -12,5 +12,5 @@ router.get('/mystories', Middleware.auth, Middleware.isTailor, StoryController.g
 router.post('/create', Middleware.auth, Middleware.isTailor, upload, StoryController.create);
 router.post('/view/:idStory', Middleware.auth, StoryController.viewStory);
 router.get('/views/:idStory', Middleware.auth, StoryController.getStoryViews);
- 
+
 export default router;

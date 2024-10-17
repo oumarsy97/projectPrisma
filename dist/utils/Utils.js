@@ -1,9 +1,13 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 export default class Utils {
-    static generateToken(id) {
-        return jwt.sign({ id }, process.env.SECRET_KEY, {
-            expiresIn: "1d",
+    static generateToken(user) {
+        return jwt.sign({ id: user.id, email: user.email, role: user.role }, // Ajoute des informations utiles dans le payload
+        process.env.SECRET_KEY, // Secret key
+        {
+            expiresIn: '1d', // Expiration du token
         });
     }
     static hashPassword(password) {

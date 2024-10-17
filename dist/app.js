@@ -20,7 +20,7 @@ app.use(express.json());
 // Configurez CORS
 app.use(cors()); // Ajoutez ce middleware pour gérer CORS
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('Hello Worldd!');
 });
 // Montage des routes
 app.use(`${process.env.BASE_URL}/follows`, FollowRoute);
