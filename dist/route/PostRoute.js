@@ -33,4 +33,5 @@ router.post("/favoris/:postId", Middleware.auth, PostController.addfavoris);
 router.get("/myfavoris", Middleware.auth, PostController.getfavoris);
 //noter
 router.post("/notes", Middleware.auth, PostController.noterPost);
+router.get("/notes/:idPost", Middleware.auth, PostController.getNotes);
 export default router;

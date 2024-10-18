@@ -31,17 +31,17 @@ export default class Middleware {
         else {
             return res.status(401).json({ message: "token not found" });
             
-        }
+        } 
     } 
 
     static isTailor = async (req: Request, res: Response, next: NextFunction) => {
         const idUser = req.params.userId;
-        const user =await prisma.user.findUnique({
+        const user =await prisma.user.findMany({
             where: {
                 id: Number(idUser)
             }
         });
-        if (user?.role === "TAILOR") {
+        if (user[0]?.role === "TAILOR") {
             next(); 
         }
         else {
@@ -52,7 +52,7 @@ export default class Middleware {
 
     static isVendor = (req: Request, res: Response, next: NextFunction) => {
         const idUser = req.params.userId;
-        prisma.user.findUnique({
+        prisma.user.findMany({
             where: {
                 id: Number(idUser)
             }

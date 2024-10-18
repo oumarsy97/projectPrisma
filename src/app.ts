@@ -79,7 +79,7 @@ const deleteOldStories = async () => {
 cron.schedule('0 * * * *', () => {
     console.log('Checking for old stories to delete...');
     deleteOldStories();
-});
+}); 
 
 
 // Démarrez le serveur

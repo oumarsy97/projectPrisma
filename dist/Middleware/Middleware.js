@@ -28,12 +28,12 @@ export default class Middleware {
     };
     static isTailor = async (req, res, next) => {
         const idUser = req.params.userId;
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user.findMany({
             where: {
                 id: Number(idUser)
             }
         });
-        if (user?.role === "TAILOR") {
+        if (user[0]?.role === "TAILOR") {
             next();
         }
         else {
@@ -42,7 +42,7 @@ export default class Middleware {
     };
     static isVendor = (req, res, next) => {
         const idUser = req.params.userId;
-        prisma.user.findUnique({
+        prisma.user.findMany({
             where: {
                 id: Number(idUser)
             }
