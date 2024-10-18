@@ -6,10 +6,10 @@ import upload from '../config/multerConfig.js';
 
 const router = express.Router();
 
-router.post('/create', Middleware.auth, Middleware.isTailor, upload, StoryController.create);
-router.delete('/delete/:idStory', Middleware.auth, Middleware.isTailor, StoryController.deleteStory);
+router.post('/create', Middleware.auth, upload, StoryController.create);
+router.delete('/delete/:idStory', Middleware.auth, StoryController.deleteStory);
 router.get('/storyfollowed', Middleware.auth, StoryController.getMyFollowingStories);
-router.get('/mystories', Middleware.auth, Middleware.isTailor, StoryController.getMyStories);
+router.get('/mystories', Middleware.auth, StoryController.getMyStories);
 router.post('/view/:idStory', Middleware.auth, StoryController.viewStory);
 router.get('/views/:idStory', Middleware.auth, StoryController.getStoryViews);
   

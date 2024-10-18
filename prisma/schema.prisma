@@ -216,7 +216,7 @@ model Repost {
   id    Int @id @default(autoincrement())
   idUser Int
   idPost Int
-  content String
+  content String?
   user  User @relation(fields: [idUser], references: [id])
   post  Post @relation(fields: [idPost], references: [id])
   createdAt DateTime @default(now())

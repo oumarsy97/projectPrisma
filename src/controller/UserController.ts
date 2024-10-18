@@ -202,6 +202,8 @@ export default class UserController {
             },
             include: {
                 follow:true,
+                reposts : true,
+                report : true,
                 favoris:{
                     include: {
                         post: true
