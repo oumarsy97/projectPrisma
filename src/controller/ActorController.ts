@@ -206,7 +206,8 @@ export default class ActorController {
           include: {
             likes: true,
             comments: true,
-            share : true
+            share : true,
+            notes: true
           },
         },
         produits: {

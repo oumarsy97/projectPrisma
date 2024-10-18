@@ -47,6 +47,8 @@ export default class RepostController{
                 data: {
                     idUser: +idUser,
                     idPost: idPost,
+                    content: req.body.content
+                    
                 },
             });
             res.json({
