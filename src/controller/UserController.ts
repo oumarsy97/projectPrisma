@@ -201,7 +201,12 @@ export default class UserController {
                 id: Number(idUser)
             },
             include: {
-                follow:true,
+                follow:{
+                    include: {
+                        user: true,
+                        actor: true
+                    }
+                },
                 reposts : {
                     include: {
                         post: true

@@ -201,7 +201,11 @@ export default class ActorController {
         // Logic pour récupérer les données de l'acteur par userId
         const actor = await prisma.actor.findUnique( { where: { idUser: parseInt(userId) }, 
       include: { user: true,
-        follow: true,
+        follow: {
+          include: {
+            user: true
+          }
+        },
         posts: {
           include: {
             likes: true,
