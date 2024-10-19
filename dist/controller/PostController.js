@@ -919,4 +919,30 @@ export default class ShareController {
             res.status(500).json({ message: "Internal server error" });
         }
     };
+    static viewPost = async (req, res) => {
+        try {
+            const postId = req.params.postId;
+            const post = await prisma.post.findUnique({
+                where: {
+                    id: Number(postId),
+                },
+            });
+            if (post === null) {
+                return res.status(400).json({ message: "Post not found" });
+            }
+            // Incrémenter le nombre de vues
+            const updatedPost = await prisma.post.update({
+                where: { id: Number(postId) },
+                data: { vues: { increment: 1 } },
+            });
+            res.json({
+                message: "Post viewed successfully",
+                data: updatedPost,
+                status: 200,
+            });
+        }
+        catch (error) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    };
 }

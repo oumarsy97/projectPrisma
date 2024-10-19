@@ -65,7 +65,6 @@ model User {
   actor Actor[]
   ventes Vente[]
   commandes Commande[]
-  chats Chat[]
   favoris Favori[]
    
   
@@ -79,6 +78,8 @@ model User {
   received Share[] @relation("SharesToUser")
   report Report[]
   Notes Notes[]
+  SenderChats Chat[] @relation("SenderChats")
+  ReceiverChats Chat[] @relation("ReceiverChats")
 }
 
 model Favori {
@@ -107,7 +108,6 @@ model Actor {
   updatedAt DateTime @updatedAt
   posts Post[]
   story Story[]
-  Chat Chat[]
   @@map("actors")
 }
 
@@ -120,7 +120,7 @@ model Post {
   size SIZE @default(M)
   photo String
   idActor Int
-  state ArticleState @default(DRAFT)
+  state ArticleState @default(PUBLISHED)
   notes Notes[] 
   user  Actor @relation(fields: [idActor], references: [id])
   likes Like[]
@@ -351,14 +351,14 @@ model GenerateCode {
 
 
 model Chat {
-  id        Int       @id @default(autoincrement())
-  idUser    Int
-  idActor   Int
-  message   String
-  user      User      @relation(fields: [idUser], references: [id])
-  actor     Actor     @relation(fields: [idActor], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  message    String
+  sender     User     @relation("SenderChats", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceiverChats", fields: [receiverId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   @@map("chats")
 }
-
