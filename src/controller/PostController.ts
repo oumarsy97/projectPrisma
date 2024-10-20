@@ -642,7 +642,7 @@ static updatepost = async (req:Request,res:Response) => {
 
 static createtag = async (req:Request,res:Response) => {
     try {
-        const postId = req.params.postId;
+        const postId = req.body.postId;
         const userId = req.params.userId;
         const actor = await prisma.actor.findUnique({
             where: {
@@ -691,11 +691,12 @@ static createtagarray = async (req:Request,res:Response) => {
     try {
         const postId = req.body.postId;
         const userId = req.params.userId;
+        const tags = req.body.tags;
+        console.log(tags); 
         const actor = await prisma.actor.findUnique({
             where: {
                 idUser: Number(userId)
             }
-            
         })
         if(actor === null) {
             return res.status(400).json({ message: "Actor not found" });
@@ -712,11 +713,18 @@ static createtagarray = async (req:Request,res:Response) => {
         if(actor?.id !== post?.idActor) {
             return res.status(400).json({ message: "Not your post" });
         }
-        const tag = await prisma.tag.createMany({
-            data: req.body.tags,
-        });
+        tags.forEach(async (tag: any) => {
+            await prisma.tag.create({
+                data: {
+                    name: tag,
+                    idPost: Number(postId),
+                    
+                }
+            });
+        })
+        
         res.json({ message: "Tag created successfully",
-            data: tag,
+            data: null,
             status: 200
         });
     }

@@ -598,7 +598,7 @@ export default class ShareController {
     };
     static createtag = async (req, res) => {
         try {
-            const postId = req.params.postId;
+            const postId = req.body.postId;
             const userId = req.params.userId;
             const actor = await prisma.actor.findUnique({
                 where: {
@@ -640,6 +640,8 @@ export default class ShareController {
         try {
             const postId = req.body.postId;
             const userId = req.params.userId;
+            const tags = req.body.tags;
+            console.log(tags);
             const actor = await prisma.actor.findUnique({
                 where: {
                     idUser: Number(userId)
@@ -660,11 +662,16 @@ export default class ShareController {
             if (actor?.id !== post?.idActor) {
                 return res.status(400).json({ message: "Not your post" });
             }
-            const tag = await prisma.tag.createMany({
-                data: req.body.tags,
+            tags.forEach(async (tag) => {
+                await prisma.tag.create({
+                    data: {
+                        name: tag,
+                        idPost: Number(postId),
+                    }
+                });
             });
             res.json({ message: "Tag created successfully",
-                data: tag,
+                data: null,
                 status: 200
             });
         }

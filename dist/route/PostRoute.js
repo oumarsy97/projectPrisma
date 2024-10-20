@@ -25,7 +25,7 @@ router.get("/comment/:postId", Middleware.auth, PostController.getComments);
 router.put("/comment/:id", Middleware.auth, PostController.updateComment);
 router.delete("/comment/:id", Middleware.auth, PostController.deleteComment);
 //tag 
-router.post("/tag/:postId", Middleware.auth, Middleware.isActor, PostController.createtag);
+router.post("/tags", Middleware.auth, Middleware.isActor, PostController.createtag);
 router.post("/tagall", Middleware.auth, Middleware.isActor, PostController.createtagarray);
 router.get("/tag/:postId", Middleware.auth, Middleware.isActor, PostController.gettag);
 router.get("/tagbypost/:postId", Middleware.auth, PostController.gettag);
