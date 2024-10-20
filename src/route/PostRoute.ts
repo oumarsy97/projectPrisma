@@ -38,6 +38,7 @@ router.get("/myfavoris", Middleware.auth, PostController.getfavoris);
 router.post("/notes", Middleware.auth, PostController.noterPost);
 router.get("/notes/:idPost", Middleware.auth, PostController.getNotes);
 router.get('/:postId/view', PostController.viewPost);
+router.put('/update/:postId', PostController.updatePost);
 
 
 

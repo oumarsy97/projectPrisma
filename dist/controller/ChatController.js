@@ -3,8 +3,7 @@ const prisma = new PrismaClient();
 const ChatController = {
     // Fonction pour créer un chat et envoyer un message
     createChatAndSendMessage: async (req, res) => {
-        const { senderId, receiverId } = req.params;
-        const { message } = req.body;
+        const { message, senderId, receiverId } = req.body;
         try {
             // Vérifier si les utilisateurs existent
             const sender = await prisma.user.findUnique({ where: { id: +senderId } });
@@ -38,11 +37,41 @@ const ChatController = {
                         { senderId: +receiverId, receiverId: +senderId },
                     ],
                 },
+                include: {
+                    sender: true,
+                    receiver: true
+                },
                 orderBy: {
                     createdAt: 'asc', // Trier les messages par ordre chronologique
                 },
             });
             return res.status(200).json({ message: "Chats recherchés", status: true, data: chat });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Une erreur est survenue", status: false, data: null });
+        }
+    },
+    //verifier si l'utilisateur a une discussion avec un autre utilisateur
+    checkIfConversationExists: async (req, res) => {
+        const userId = req.params.userId;
+        try {
+            const conversation = await prisma.chat.findMany({
+                where: {
+                    OR: [
+                        { receiverId: +userId },
+                        { senderId: +userId, },
+                    ],
+                },
+                include: {
+                    sender: true,
+                    receiver: true
+                },
+                orderBy: {
+                    createdAt: 'asc', // Trier les messages par ordre chronologique
+                },
+            });
+            return res.status(200).json({ message: "Conversation existante", status: true, data: conversation });
         }
         catch (error) {
             console.error(error);

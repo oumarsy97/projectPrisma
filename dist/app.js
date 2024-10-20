@@ -1,10 +1,10 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import cron from 'node-cron';
-import cors from 'cors'; // Importez cors ici
+import cors from 'cors';
 import dotenv from 'dotenv';
-dotenv.config();
-// Import your routes
+import bodyParser from 'body-parser';
+import http from 'http';
+import cron from 'node-cron';
+// Import des routes
 import UserRoute from './route/UserRoute.js';
 import FollowRoute from './route/FollowRoute.js';
 import StoryRoute from './route/StoryRoute.js';
@@ -14,57 +14,36 @@ import RepostRoute from './route/RepostRoute.js';
 import VenteRoute from './route/VenteRoute.js';
 import ChatRoute from './route/ChatRoute.js';
 import ProduitRoute from './route/ProduitRoute.js';
-import bodyParser from 'body-parser';
+dotenv.config();
+// Créer l'application Express
 const app = express();
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-// Middleware for parsing JSON bodies
-// app.use(express.json()); 
-// Configurez CORS
-app.use(cors()); // Ajoutez ce middleware pour gérer CORS
+app.use(bodyParser.json());
+// Routes
 app.get('/', (req, res) => {
-    res.send('Hello Worldd!');
+    res.send('Hello World!');
 });
-// Montage des routes
 app.use(`${process.env.BASE_URL}/follows`, FollowRoute);
+app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/story`, StoryRoute);
 app.use(`${process.env.BASE_URL}/users`, UserRoute);
-app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
 app.use(`${process.env.BASE_URL}/posts`, PostRoute);
-app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);
-app.use(`${process.env.BASE_URL}/actors`, ActorRoute);
-app.use(`${process.env.BASE_URL}/ventes`, VenteRoute);
-app.use(`${process.env.BASE_URL}/chat`, ChatRoute);
+app.use(`${process.env.BASE_URL}/chats`, ChatRoute);
 app.use(`${process.env.BASE_URL}/produits`, ProduitRoute);
-const prisma = new PrismaClient();
-// Fonction pour supprimer les histoires plus anciennes que 3 minutes
-const deleteOldStories = async () => {
-    console.log('Attempting to delete old stories...');
-    try {
-        const threeMinutesAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 3 minutes ago
-        const result = await prisma.story.deleteMany({
-            where: {
-                createdAt: {
-                    lt: threeMinutesAgo
-                }
-            }
-        });
-        console.log(`Deleted ${result.count} old stories.`);
-    }
-    catch (error) {
-        console.error('Error deleting old stories:', error);
-    }
-    console.log('Finished attempting to delete old stories.');
-};
-// Planifiez la tâche pour s'exécuter toutes les minutes
-cron.schedule('0 * * * *', () => {
+app.use(`${process.env.BASE_URL}/reposts`, RepostRoute);
+app.use(`${process.env.BASE_URL}/ventes`, VenteRoute);
+// Créer le serveur HTTP en utilisant l'application Express
+const server = http.createServer(app);
+// Configurer Socket.IO avec le serveur HTTP
+// Planification des tâches cron (par exemple pour supprimer les vieilles stories)
+cron.schedule('0 * * * *', async () => {
     console.log('Checking for old stories to delete...');
-    deleteOldStories();
+    // Ajoutez ici la fonction pour supprimer les stories
 });
-// Démarrez le serveur
-// Start the server
-app.listen(Number(process.env.PORT), () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
-    console.log(`Swagger documentation available at http://localhost:${process.env.PORT}/api-docs`);
+// Démarrer le serveur
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

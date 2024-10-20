@@ -635,7 +635,7 @@ static updatepost = async (req:Request,res:Response) => {
             status: 200
         });
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+         res.status(500).json({ message: "Internal server error" });
     }
 
 }
@@ -1019,6 +1019,36 @@ static viewPost = async (req: Request, res: Response) => {
   
       res.json({
         message: "Post viewed successfully",
+        data: updatedPost,
+        status: 200,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
+  //update post selon le statut
+  static updatePost = async (req: Request, res: Response) => {
+    try {
+      const postId = req.params.postId;
+      const { state } = req.body;
+      const post = await prisma.post.findUnique({
+        where: {
+          id: Number(postId),
+        },
+      });
+  
+      if (post === null) {
+        return res.status(400).json({ message: "Post not found" });
+      }
+  
+      const updatedPost = await prisma.post.update({
+        where: { id: Number(postId) },
+        data: { state },
+      });
+  
+      res.json({
+        message: "Post updated successfully",
         data: updatedPost,
         status: 200,
       });
