@@ -635,6 +635,43 @@ export default class ShareController {
             res.status(500).json({ message: "Internal server error" });
         }
     };
+    //creer des tage à partir d'un tableau de tag 
+    static createtagarray = async (req, res) => {
+        try {
+            const postId = req.body.postId;
+            const userId = req.params.userId;
+            const actor = await prisma.actor.findUnique({
+                where: {
+                    idUser: Number(userId)
+                }
+            });
+            if (actor === null) {
+                return res.status(400).json({ message: "Actor not found" });
+            }
+            const post = await prisma.post.findUnique({
+                where: {
+                    id: Number(postId)
+                }
+            });
+            if (post === null) {
+                return res.status(400).json({ message: "Post not found" });
+            }
+            // //verifier si cest son post
+            if (actor?.id !== post?.idActor) {
+                return res.status(400).json({ message: "Not your post" });
+            }
+            const tag = await prisma.tag.createMany({
+                data: req.body.tags,
+            });
+            res.json({ message: "Tag created successfully",
+                data: tag,
+                status: 200
+            });
+        }
+        catch (error) {
+            res.status(500).json({ message: "Internal server error" });
+        }
+    };
     static updatetag = async (req, res) => {
         try {
             const postId = req.params.postId;

@@ -206,4 +206,36 @@ export default class ActorController {
             return res.status(500).json({ message: 'Erreur du serveur', status: 500, data: null });
         }
     }
+    //3 acctors qui ont plus de note sans moi 
+    static async getActorsWithoutMe(req, res) {
+        const userId = parseInt(req.params.userId);
+        try {
+            const actors = await prisma.actor.findMany({
+                where: {
+                    idUser: {
+                        not: userId,
+                    },
+                    votes: {
+                        gt: 0, // Sélectionne les acteurs avec au moins un vote
+                    },
+                },
+                include: {
+                    user: true
+                },
+                orderBy: {
+                    votes: 'desc',
+                },
+                take: 3,
+            });
+            return res.json({
+                message: 'Top 3 des acteurs avec le plus de votes',
+                status: 200,
+                data: actors
+            });
+        }
+        catch (error) {
+            console.error('Erreur lors de la sélection des acteurs:', error);
+            return res.status(500).json({ message: 'Erreur du serveur', status: 500, data: null });
+        }
+    }
 }
