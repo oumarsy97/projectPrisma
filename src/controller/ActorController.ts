@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import Utils from "../utils/Utils.js";
 import upload from '../config/multerConfig.js';
 
@@ -94,13 +94,26 @@ export default class ActorController {
 
   //get all actors
   static getActors = async (req: Request, res: Response) => {
-    const actors = await prisma.actor.findMany();
-    res.json({
-      message: "Actors fetched successfully",
-      data: actors,
-      status: 200,
+    var actors = await prisma.actor.findMany();
+    if (req.query.actor) {
+        const actorRole = (req.query.actor as string).replace(/\//g, '');
+        actors = await prisma.actor.findMany(
+            {
+                where: {
+                    role: actorRole as Role
+                },
+                include: {
+                    user: true,
+                    produits: true
+                }
+            }
+        );
+    }
+    res.json({message: "Actors fetched successfully",
+        data: actors,
+        status: 200
     });
-  };
+}
 
   static getActorById = async (req: Request, res: Response) => {
     const actor = await prisma.actor.findUnique({
@@ -247,7 +260,7 @@ export default class ActorController {
               votes: {
                   gt: 0,  // Sélectionne les acteurs avec au moins un vote
               },
-          },
+          }, 
           include: {
               user: true
           },
@@ -255,7 +268,7 @@ export default class ActorController {
           orderBy: {
               votes: 'desc',
           },
-          take: 3,
+          take: 5,
       });
 
       return res.json({ 

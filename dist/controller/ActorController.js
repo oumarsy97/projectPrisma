@@ -74,11 +74,22 @@ export default class ActorController {
     };
     //get all actors
     static getActors = async (req, res) => {
-        const actors = await prisma.actor.findMany();
-        res.json({
-            message: "Actors fetched successfully",
+        var actors = await prisma.actor.findMany();
+        if (req.query.actor) {
+            const actorRole = req.query.actor.replace(/\//g, '');
+            actors = await prisma.actor.findMany({
+                where: {
+                    role: actorRole
+                },
+                include: {
+                    user: true,
+                    produits: true
+                }
+            });
+        }
+        res.json({ message: "Actors fetched successfully",
             data: actors,
-            status: 200,
+            status: 200
         });
     };
     static getActorById = async (req, res) => {
@@ -225,7 +236,7 @@ export default class ActorController {
                 orderBy: {
                     votes: 'desc',
                 },
-                take: 3,
+                take: 5,
             });
             return res.json({
                 message: 'Top 3 des acteurs avec le plus de votes',

@@ -110,6 +110,7 @@ model Actor {
   posts Post[]
   story Story[]
   @@map("actors")
+  Commandes Commande[]
 }
 
 
@@ -301,9 +302,11 @@ model VenteDetail {
 model Commande {
   id    Int @id @default(autoincrement())
   idUser Int
+  idActor Int
   montant Float
   statut STATUT @default(PENDING)
   user  User @relation(fields: [idUser], references: [id])
+  actor  Actor @relation(fields: [idActor], references: [id])
   produits  CommandeProduit[] 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
