@@ -4,18 +4,20 @@ import Utils from '../utils/Utils.js';
 const prisma = new PrismaClient();
 import { Request, Response } from "express";
 import Validation from '../Validation/Validation.js';
+import upload from '../config/multerConfig.js';
 
 export default class ProduitController {
 
     static addProduit = async (req: Request, res: Response) => {
+        upload(req, res, async (err: any) => {
         // const validationResult = Validation.validateProduit.safeParse(req.body);
         // if(!validationResult.success) {
         //     return res.status(400).json({message: validationResult.error.message, status: 400});
         // }
+        console.log(req.body);
         try {
-            const idUser = Number(req.params.userId);
-            console.log("idUser", idUser);
             
+            const idUser = Number(req.params.userId); // Assurez-vous que cette valeur est définie
             const userExists = await prisma.user.findUnique({
                 where: { id: idUser }
             });
@@ -25,21 +27,29 @@ export default class ProduitController {
             const actor = await prisma.actor.findUnique({
                 where: { idUser: idUser }
             });
+            console.log(actor);
+            if(actor?.role !== "VENDOR") {
+                return res.status(400).json({ message: "Only vendors can add products", status: 400 });
+                
+            }
             const credit = actor?.credits || 0;
             if (credit < 10) {
                 return res.status(400).json({ message: "Le nombre de credit est insuffisant", status: 400 });
             }
-
+            console.log(req.file?.path);
             const produit = await prisma.produit.create({
                 data: {
                     libelle: req.body.libelle,
                     description: req.body.description,
-                    image: req.body.image,
+                    image: req.file?.path || "",
                     price: parseFloat(req.body.price),
-                    qte: parseInt(req.body.qte),
-                    idUser: idUser
+                    qte: +req.body.qte,
+                    idUser: Number(actor?.id),
+                
+                    
                 }
             });
+            console.log(produit);
             const credits = credit - 10;
             const act = await prisma.actor.update({
                 where: {
@@ -61,22 +71,8 @@ export default class ProduitController {
                 error: error.message,
             });
         }
+    });
     }
-
-    static getProduit = async (req: Request, res: Response) => {
-        try {
-            const produits = await prisma.produit.findMany();
-            res.json({ message: "Produits fetched successfully",
-                data: produits,
-                status: 200
-            });
-        } catch (error: any) {
-            res.status(500).json({
-                message: "Echec",
-                error: error.message,
-            });
-        }
-    };
 
     static updateProduit = async (req: Request, res: Response) => {
         /* const validationResult = Validation.validateProduit.safeParse(req.body);
@@ -115,8 +111,39 @@ export default class ProduitController {
         });
     }
 
+    static getAllProduits = async (req: Request, res: Response) => {
+        try {
+            const produits = await prisma.produit.findMany(
+                 {
+                    include: {
+                        vendor: {
+                            include: {
+                                user: true
+                            }
+                        },
+                        notes: true,
+                        commandes: true,
+                        
+                   },
+                   orderBy: {
+                       createdAt: "desc"
+                   },
+                 }
+            );
+            res.json({message: "Produits fetched successfully",
+                data: produits,
+                status: 200
+            });
+        }
+        catch (error: any) {
+            res.status(500).json({
+                message: "Echec",
+                error: error.message,
+            });
+        }
+    }
     static findProduitUser = async (req: Request, res: Response) => {
-        var idUser: number = Number(req.params.idUser);
+        var idUser = Number(req.params.idUser);
         if (!idUser) {
             idUser = Number(req.params.userId);
         }
@@ -145,60 +172,18 @@ export default class ProduitController {
             return res.status(400).json({message: validationResult.error.message, status: 400});
         }
         try {
-            const produit = await prisma.produit.findFirst({
+            const produit = await prisma.produit.findUnique({
                 where: {
                     id: req.body.idProduit
                 }
             });
-            const commande = await prisma.commande.findFirst({
+            const commande = await prisma.commande.findUnique({
                 where: {
                     id: req.body.idCommande
                 }
             });
             const price = produit?.price || 0;
             const qte = req.body.qte;
-            const montantCommande = commande?.montant || 0;
-            const montant = price * qte + montantCommande;
-
-            let produits = await prisma.commandeProduit.findFirst({
-                where: {
-                    idProduit: req.body.idProduit,
-                    idCommande: req.body.idCommande
-                }
-            });
-            
-            if (produits != null) {
-                if (produit?.qte || 0 >= qte) {
-                    produits = await prisma.commandeProduit.update({
-                        where: {
-                            id: produits.id,
-                        },
-                        data: {
-                            qte: produits.qte + qte,
-                        }
-                    });
-                    
-                    await prisma.commande.update({
-                        where: {
-                            id: commande?.id
-                        },
-                        data: {
-                            montant: montant,
-                        }
-                    });
-                    
-                    return res.json({
-                        message: "Produit ajouté à la commande",
-                        data: produits,
-                        status: 200
-                    });
-                }
-                else {
-                    return res.status(400).json({ message: "Quantité insuffisante", status: 400 });
-                }
-            }
-            
-
             const commandeProduit = await prisma.commandeProduit.create({
                 data: {
                     idProduit: req.body.idProduit,
@@ -208,9 +193,11 @@ export default class ProduitController {
                 }
             });
 
-            await prisma.commande.update({
+            const montantCmd = commande?.montant || 0;
+            const montant = montantCmd + ( price * qte );
+            const cmd = await prisma.commande.update({
                 where: {
-                    id: commande?.id || 0
+                    id: req.body.idCommande,
                 },
                 data: {
                     montant: montant,
@@ -237,34 +224,10 @@ export default class ProduitController {
         }
         //Doit prendre l'ID de celui qui est connecté (Client)
         try {
-            let commandes = await prisma.commande.findFirst({
-                where: {
-                    idUser: Number(req.body.idUser),
-                    idActor: Number(req.body.actorId),
-                    statut: "PENDING",
-                }
-            });
-            
-            if (commandes?.id != null && commandes?.id != undefined) {
-                commandes = await prisma.commande.update({
-                    where: {
-                        id: commandes.id,
-                    },
-                    data: {
-                        montant: commandes.montant + parseFloat(req.body.montant),
-                    }
-                });
-                return res.json({
-                    message: "Une commande est déjà en cours",
-                    data: commandes,
-                    status: 400
-                });
-            }
             const commande = await prisma.commande.create({
                 data: {
-                    idUser: Number(req.body.idUser),
-                    idActor: Number(req.body.actorId),
-                    montant: parseFloat(req.body.montant),
+                    idUser: Number(req.params.userId),
+                    montant: 0,
                 }
             });
 
@@ -282,37 +245,19 @@ export default class ProduitController {
     }
 
     static validerCommande = async (req: Request, res: Response) => {
-        // const validationResult = Validation.validateCommande.safeParse(req.body);
-        // if (!validationResult.success) {
-        //     return res.status(400).json({ message: validationResult.error.message, status: 400 });
-        // }
+        const validationResult = Validation.validateCommande.safeParse(req.body);
+        if (!validationResult.success) {
+            return res.status(400).json({ message: validationResult.error.message, status: 400 });
+        }
         try {
             const commande = await prisma.commande.update({
                 where: {
                     id: Number(req.params.id),
-                    statut: "PENDING",
                 },
                 data: {
                     statut: "VALIDATED",
                 }
             });
-
-            const produits = await prisma.commandeProduit.findMany({
-                where: {
-                    idCommande: Number(req.params.id),
-                }
-            });
-
-            for (let i = 0; i < produits.length; i++) {
-                await prisma.produit.update({
-                    where: {
-                        id: produits[i].idProduit
-                    },
-                    data: {
-                        qte:  { decrement: produits[i].qte }
-                    }
-                })
-            }
 
             res.json({
                 message: "Commande validated successfully",
@@ -320,39 +265,6 @@ export default class ProduitController {
                 status: 200
             });
         } catch (error: any) {
-            res.status(500).json({
-                message: "Echec",
-                error: error.message,
-            });
-        }
-    }
-
-    static annulerCommande = async (req: Request, res: Response) => {
-        try {
-            const commande = await prisma.commande.update({
-                where: {
-                    id: Number(req.params.id),
-                    statut: "PENDING",
-                },
-                data: {
-                    statut: "CANCELED",
-                }
-            });
-
-
-            const produits = await prisma.commandeProduit.deleteMany({
-                where: {
-                    idCommande: Number(req.params.id),
-                }
-            });
-
-            res.json({
-                message: "Commande canceled successfully",
-                data: commande,
-                status: 200
-            });
-        }
-        catch (error: any) {
             res.status(500).json({
                 message: "Echec",
                 error: error.message,
@@ -404,47 +316,33 @@ export default class ProduitController {
     }
 
     static findCommandeVendor = async (req: Request, res: Response) => {
-        const idVendor = Number(req.params.idVendor);
+        const idVendor = Number(req.params.idVendor); // Utilisation de idProduit
         try {
-            const commandes = await prisma.commande.findMany({
+            const Produits = await prisma.produit.findMany({
                 where: {
-                    idActor: idVendor,
+                    idUser: idVendor
                 },
-                include: {
-                    user: true,
-                    produits: true
+            });
+
+        const commandeProduits = await prisma.commandeProduit.findMany({
+            where: {
+                idProduit: {
+                    in: Produits.map((produit: { id: any; }) => produit.id)
                 }
-            });
-
-            const produitCommandes = await prisma.produit.findMany({
-                where: {
-                    id: {
-                        in: commandes?.flatMap((commande) => commande.produits.map((produit) => produit.idProduit))
-                    }
+            }
+        });
+        const commandes = await prisma.commande.findMany({
+            where: {
+                id: {
+                    in: commandeProduits.map((commandeProduit: { idCommande: any; }) => commandeProduit.idCommande)
                 }
-            });
+            }
+        });
 
-            const updatedCommandes = commandes.map((commande) => {
-                const updatedProduits = produitCommandes
-                    .filter((produit) => commande.produits.some((commandeProduit) => commandeProduit.idProduit === produit.id))
-                    .map((produit) => ({
-                        id: produit.id,
-                        idCommande: commande.id,
-                        idProduit: produit.id,
-                        qte: commande.produits.find(cp => cp.idProduit === produit.id)?.qte || 0,
-                        price: produit.price,
-                        libelle: produit.libelle,
-                        description: produit.description,
-                        image: produit.image
-                    }));
-                return { ...commande, produits: updatedProduits };
-            });
-
-            res.json({
-                message: "Commandes fetched successfully",
-                data: updatedCommandes,
-                status: 200
-            });
+        res.json({message: "Commandes fetched successfully",
+            data: commandes,
+            status: 200
+        });
         } catch (error: any) {
             res.status(500).json({
                 message: "Échec",
@@ -473,26 +371,74 @@ export default class ProduitController {
             });
             if (!produit) return res.status(404).json({ message: "Produit non trouvé", data: null, status: 404 });
     
-        const notesExist = produit.notes.findIndex(r => r.idUser === Number(idUser));  
-        if (notesExist !== -1) {
-            await prisma.notes.update({
-                where: { id: produit.notes[notesExist].id },
-                data: { note }
-            });
-        } else {
-            await prisma.notes.create({
-                data: {
-                    note,
-                    idUser: Number(idUser),
-                    produitId: Number(idProduit)
-                }
-            });
-        
-        }
-        res.status(200).json({ message: "Produit noté avec succès", status: true });
-        } catch (error: any) {
-            res.status(500).json({ message: error.message, data: null, status: false });
-        }
+     const notesExist = produit.notes.findIndex(r => r.idUser === Number(idUser));  
+    if (notesExist !== -1) {
+        await prisma.notes.update({
+            where: { id: produit.notes[notesExist].id },
+            data: { note }
+        });
+    } else {
+        await prisma.notes.create({
+            data: {
+                note,
+                idUser: Number(idUser),
+                produitId: Number(idProduit)
+            }
+        });
+    
+    }
+    res.status(200).json({ message: "Produit noté avec succès", status: true });
+    } catch (error: any) {
+    res.status(500).json({ message: error.message, data: null, status: false });
+    }
     }
 
+    //others's produits 
+    static otherProduits = async (req: Request, res: Response) => {
+        const idUser = Number(req.params.userId);
+        console.log("idUser", idUser)
+        const actor = await prisma.actor.findUnique({
+            where: {
+                idUser: +idUser
+            }
+            
+        })
+        try {
+            const Produits = await prisma.produit.findMany({
+                where: {
+                   
+                        idUser: {
+                            not: actor?.id
+                        }
+                    
+                },
+                include: {
+                     vendor: {
+                         include: {
+                             user: true
+                         }
+                     },
+                     notes: true,
+                     commandes: true,
+                     
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+                
+            });
+            res.json({message: "Produits fetched successfully",
+                data: Produits,
+                status: 200
+            });
+        }
+        catch (error: any) {
+            res.status(500).json({
+                message: "Echec",
+                error: error.message,
+            });
+        }
+    }
+    
+    
 }
